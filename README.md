@@ -10,6 +10,8 @@
 
 [Download](https://github.com/samuelit0davila/fifa-street-pc-port/releases/latest) · [Changelog](CHANGELOG.md) · [Report a bug](https://github.com/samuelit0davila/fifa-street-pc-port/issues) · [Build from source](docs/BUILDING.md)
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Z3B428N88S)
+
 <img src="docs/images/restreet-1.3-banner.png" alt="ReStreet 1.3: True VSync, smooth motion, honest FPS counter, Adaptive Sync, clean courts, uncapped when VSync is off" width="1000">
 
 </div>
