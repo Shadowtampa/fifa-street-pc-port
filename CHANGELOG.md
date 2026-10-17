@@ -1,5 +1,17 @@
 ﻿# ReStreet - FIFA Street 2012 Recompiled: changelog
 
+## v1.5.1 Online Beta
+
+Automatic updates and a Performance page in the launcher. Installs over v1.3, v1.4 or v1.5.
+
+### New
+- **Automatic updates:** at start the launcher checks the latest GitHub release; "Update now" downloads the patch and its .sha256 from GitHub only, verifies SHA-256, and the patch installs itself with the saved name, key and server, then reopens the launcher.
+- **Performance page:** last 30 sessions on this PC (FPS average and 1% low per scene, crashes), the graphics card used, this PC, and tips (integrated GPU on a PC with a faster card, FPS below the refresh rate, stutters, repeated crashes).
+- Performance reports also carry the game exit code and whether the integrated GPU was used.
+
+### Fixed
+- Performance reports had no graphics card name (the launcher read an earlier session from the log).
+
 ## v1.5 Online Beta
 
 A new launcher with a social hub, the dedicated graphics card on hybrid laptops, and anonymous performance reports. Installs over v1.3 or over the v1.4 Online Beta Test.
