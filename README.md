@@ -12,7 +12,7 @@
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Z3B428N88S)
 
-<img src="docs/images/restreet-1.4-banner.png" alt="ReStreet 1.4: FIFA Street is back online. Open beta with Division Match, Weekly Cup, Friend Match, Online Team Play, Leaderboards and World Tour, on Europe and South America servers" width="1000">
+<img src="docs/images/restreet-1.5.4-banner.png" alt="ReStreet 1.5.4 Online Beta: new Matches tab, automatic updates, social hub and performance page, on Europe and South America servers" width="1000">
 
 </div>
 
