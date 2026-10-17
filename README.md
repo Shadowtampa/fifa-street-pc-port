@@ -22,7 +22,15 @@ ReStreet is a Windows PC version of FIFA Street (2012) made by recompiling the X
 
 You need your own copy of the game: an Xbox 360 ISO of FIFA Street (2012). The ISO and the game files are not included.
 
-**v1.4 adds online play** as a free open beta: a patch you install over v1.3.
+**Online play** is a free open beta: a patch you install over v1.3. The latest is **v1.5 Online Beta**.
+
+## What's new in v1.5 (Online Beta)
+
+- **New launcher:** a glass design with live server ping and player counts, and a server switch (Europe / South America).
+- **Social page in the launcher:** who is online and what they are doing, friends and friend requests, a general chat per server and private chats with friends, block and report.
+- **Laptops with two graphics cards:** the game now picks the dedicated card automatically on Direct3D 12 and Vulkan.
+- **Performance reports:** after each session the launcher shows your FPS in matches, replays and menus, and, if you agree, sends an anonymous report (graphics card, processor, memory, settings, FPS; no name, no account) so we can find where the game is slow on real PCs. Turn it off in Advanced.
+- Installs over **v1.3** or over the **v1.4 Online Beta Test**, keeping your saves, settings and online name. Download **ReStreet-1.5-Online-Beta.exe** from the [v1.5 release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/tag/v1.5-online-beta).
 
 ## What's new in v1.4 (Online Beta Test)
 
@@ -39,12 +47,12 @@ FIFA Street 2012 is back online. EA shut the servers down years ago; now you can
 - **Two servers:** Europe (Europe, Africa, Middle East) and South America. Each server has its own players, seasons, friends and leaderboards; pick the same server as your friends.
 - **New launcher design.**
 
-### Install the online beta
+### Install the online beta (v1.5)
 
 1. Install **ReStreet v1.3** first ([download v1.3](https://github.com/samuelit0davila/fifa-street-pc-port/releases/tag/v1.3)).
 2. Close the launcher and the game.
-3. Run **ReStreet-1.4-Online-Beta-Test.exe** from the [v1.4 release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/tag/v1.4-online-beta-test), pick your ReStreet folder, choose your online name and your server.
-4. Open the launcher (it shows **V1.4 · ONLINE BETA TEST**) and press **PLAY**.
+3. Run **ReStreet-1.5-Online-Beta.exe** from the [v1.5 release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/tag/v1.5-online-beta), pick your ReStreet folder, choose your online name and your server.
+4. Open the launcher (it shows **V1.5 · ONLINE BETA**) and press **PLAY**.
 
 Your saves and settings are kept. Your online name is protected by a personal key stored in `online.json`: keep a copy of that file if you reinstall. To go back to offline, run the patch again and choose **Remove the online patch**.
 

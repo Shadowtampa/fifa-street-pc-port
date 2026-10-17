@@ -1,5 +1,20 @@
 ﻿# ReStreet - FIFA Street 2012 Recompiled: changelog
 
+## v1.5 Online Beta
+
+A new launcher with a social hub, the dedicated graphics card on hybrid laptops, and anonymous performance reports. Installs over v1.3 or over the v1.4 Online Beta Test.
+
+### New
+- **New launcher design** (glass interface, own title bar) with live server ping and player counts and a server switch.
+- **Social page:** online players and what they are doing, friends and requests, add a friend by name, server chat and private chats with friends, block and report.
+- **Performance reports:** FPS average, 1% low and stutters per scene (menus, matches, replays) shown after each session; sent anonymously to the server only if the player agrees (asked once, toggle in Advanced).
+
+### Fixed
+- **Hybrid laptops used the integrated GPU:** automatic selection now prefers the high-performance adapter on Direct3D 12 and discrete GPUs on Vulkan.
+
+### Known issues
+- Same as v1.4: no Rematch yet, Street Network videos off, rare Online Team Play loading hang, idle players are removed by the game.
+
 ## v1.4 Online Beta Test
 
 Online play is back as a free open beta, installed as a patch over v1.3, on community servers in Europe and South America.
