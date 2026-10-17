@@ -1,5 +1,16 @@
 ﻿# ReStreet - FIFA Street 2012 Recompiled: changelog
 
+## v1.5.4 Online Beta
+
+Matches tab and a smoother launcher. Offered automatically by the v1.5.1+ launcher.
+
+### New
+- **Matches tab:** post a match (optional title, mode, stadium), all open matches as cards with Join, an open-matches badge in the menu, and who is searching in the game.
+
+### Fixed
+- The classic window no longer flashes at start: the launcher stays invisible until the new page has loaded.
+- False "Server not reachable": requests retry once and background refreshes only report after three failures in a row.
+
 ## v1.5.3 Online Beta
 
 Open games reach the match by themselves; the new launcher everywhere. Offered automatically by the v1.5.1/v1.5.2 launcher.
