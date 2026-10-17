@@ -1,5 +1,13 @@
 ﻿# ReStreet - FIFA Street 2012 Recompiled: changelog
 
+## v1.5.2 Online Beta
+
+Open games in the launcher. Offered automatically by the v1.5.1 launcher; installs over v1.3, v1.4, v1.5 or v1.5.1.
+
+### New
+- **Open games (Social page):** create a game room (5-a-side, 6-a-side, Futsal; stadium) or join one; creating posts a message in the server chat; a full room uses the existing in-game room flow that takes both players to the match set-up.
+- **Searching players:** the Online list shows the exact mode each player searches and the waiting time, plus a per-mode summary.
+
 ## v1.5.1 Online Beta
 
 Automatic updates and a Performance page in the launcher. Installs over v1.3, v1.4 or v1.5.

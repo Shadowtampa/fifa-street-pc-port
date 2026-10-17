@@ -22,7 +22,13 @@ ReStreet is a Windows PC version of FIFA Street (2012) made by recompiling the X
 
 You need your own copy of the game: an Xbox 360 ISO of FIFA Street (2012). The ISO and the game files are not included.
 
-**Online play** is a free open beta: a patch you install over v1.3. The latest is **v1.5.1 Online Beta**.
+**Online play** is a free open beta: a patch you install over v1.3. The latest is **v1.5.2 Online Beta**.
+
+## What's new in v1.5.2 (Online Beta)
+
+- **Open games in the launcher:** create a game (mode and stadium) or join one in one click from the Social page; when it is full, PLAY takes both players to the match.
+- **See who is looking for a match:** the mode each player is searching for and how long they have waited.
+- On v1.5.1 the launcher installs this update by itself (**Update now**). From older versions, download **ReStreet-1.5.2-Online-Beta.exe** from the [v1.5.2 release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/tag/v1.5.2-online-beta).
 
 ## What's new in v1.5.1 (Online Beta)
 
@@ -54,12 +60,12 @@ FIFA Street 2012 is back online. EA shut the servers down years ago; now you can
 - **Two servers:** Europe (Europe, Africa, Middle East) and South America. Each server has its own players, seasons, friends and leaderboards; pick the same server as your friends.
 - **New launcher design.**
 
-### Install the online beta (v1.5.1)
+### Install the online beta (v1.5.2)
 
 1. Install **ReStreet v1.3** first ([download v1.3](https://github.com/samuelit0davila/fifa-street-pc-port/releases/tag/v1.3)).
 2. Close the launcher and the game.
-3. Run **ReStreet-1.5.1-Online-Beta.exe** from the [v1.5.1 release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/tag/v1.5.1-online-beta), pick your ReStreet folder, choose your online name and your server.
-4. Open the launcher (it shows **V1.5.1 · ONLINE BETA**) and press **PLAY**.
+3. Run **ReStreet-1.5.2-Online-Beta.exe** from the [v1.5.2 release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/tag/v1.5.2-online-beta), pick your ReStreet folder, choose your online name and your server.
+4. Open the launcher (it shows **V1.5.2 · ONLINE BETA**) and press **PLAY**.
 
 Your saves and settings are kept. Your online name is protected by a personal key stored in `online.json`: keep a copy of that file if you reinstall. To go back to offline, run the patch again and choose **Remove the online patch**.
 
