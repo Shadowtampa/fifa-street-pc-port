@@ -1,5 +1,17 @@
 ﻿# ReStreet - FIFA Street 2012 Recompiled: changelog
 
+## v1.5.3 Online Beta
+
+Open games reach the match by themselves; the new launcher everywhere. Offered automatically by the v1.5.1/v1.5.2 launcher.
+
+### New
+- **Automatic match set-up for launcher rooms:** the runtime's room watcher is installed again (it stopped with the retired F6 panel); a full room passes the intro, title and autosave notice, then takes both games to the Friend Match set-up. The launcher shows a "Game ready" dialog with PLAY.
+- **New launcher without WebView2:** on Wine/Proton or without the runtime, the page is served on 127.0.0.1 under a random path and opened as a browser app window (Chromium family) or in the default browser; the classic window is hidden; the update check also runs there.
+
+### Fixed
+- False "Chat is not available on this server yet".
+- Red crosses in the classic launcher on Wine (GDI+ effects Wine lacks are skipped).
+
 ## v1.5.2 Online Beta
 
 Open games in the launcher. Offered automatically by the v1.5.1 launcher; installs over v1.3, v1.4, v1.5 or v1.5.1.
