@@ -1,5 +1,22 @@
 ﻿# ReStreet - FIFA Street 2012 Recompiled: changelog
 
+## v1.4 Online Beta Test
+
+Online play is back as a free open beta, installed as a patch over v1.3, on community servers in Europe and South America.
+
+### New
+- **Online modes:** Street Season Division Match (10-game seasons with promotion and relegation), Cup Match (a new cup every week with a trophy), Friend Match, Online Team Play and World Tour Play Online (Gold).
+- **Friends** from the Xbox Guide (Guide button or F6): friends list, add friends, gamer cards and invites.
+- **EA SPORTS Hub:** News Feed, leaderboards (Top 100, My 100, Friends and Country) and EAS FC levels.
+- **Two servers:** Europe and South America, chosen when you install the patch.
+- **Discord Rich Presence:** your profile shows *Playing ReStreet PC* and what you are doing. Contributed by **Emran_Ahm3d**.
+- **New launcher design.**
+
+### Known issues
+- No Rematch at the end of a match yet. Street Network video uploads are off.
+- Online Team Play: the second player's game can rarely stay on the loading screen.
+- An idle player is removed from the match by the game.
+
 ## v1.3
 
 True VSync on Direct3D 12 and Vulkan: no tearing, a new frame on every refresh at any refresh rate (also with Adaptive Sync / FreeSync), an FPS counter that matches GPU overlays, and clean stadium floors on every graphics card.

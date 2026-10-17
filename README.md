@@ -12,7 +12,7 @@
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Z3B428N88S)
 
-<img src="docs/images/restreet-1.3-banner.png" alt="ReStreet 1.3: True VSync, smooth motion, honest FPS counter, Adaptive Sync, clean courts, uncapped when VSync is off" width="1000">
+<img src="docs/images/restreet-1.4-banner.png" alt="ReStreet 1.4: FIFA Street is back online. Open beta with Division Match, Weekly Cup, Friend Match, Online Team Play, Leaderboards and World Tour, on Europe and South America servers" width="1000">
 
 </div>
 
@@ -22,7 +22,33 @@ ReStreet is a Windows PC version of FIFA Street (2012) made by recompiling the X
 
 You need your own copy of the game: an Xbox 360 ISO of FIFA Street (2012). The ISO and the game files are not included.
 
-**v1.3 is offline only.** It has no online play.
+**v1.4 adds online play** as a free open beta: a patch you install over v1.3.
+
+## What's new in v1.4 (Online Beta Test)
+
+FIFA Street 2012 is back online. EA shut the servers down years ago; now you can play the original online modes again on community servers, with real people.
+
+- **Street Season, Division Match:** get matched with a real opponent, play 10-game seasons, earn promotion or fight relegation.
+- **Street Season, Cup Match:** a new cup every week, a full tournament bracket and a trophy for the winner.
+- **Friend Match:** invite a friend and play.
+- **Online Team Play:** pick your side and play as a team.
+- **Friends (Xbox Guide, Guide button or F6):** friends list, add friends, gamer cards and invites.
+- **EA SPORTS Hub (Back button on the main menu):** News Feed with your and your friends' results, leaderboards (Top 100, My 100, Friends and Country) and EAS FC levels.
+- **World Tour:** Play Online (Gold).
+- **Discord Rich Presence:** your Discord profile shows *Playing ReStreet PC* and what you are doing.
+- **Two servers:** Europe (Europe, Africa, Middle East) and South America. Each server has its own players, seasons, friends and leaderboards; pick the same server as your friends.
+- **New launcher design.**
+
+### Install the online beta
+
+1. Install **ReStreet v1.3** first ([download v1.3](https://github.com/samuelit0davila/fifa-street-pc-port/releases/tag/v1.3)).
+2. Close the launcher and the game.
+3. Run **ReStreet-1.4-Online-Beta-Test.exe** from the [v1.4 release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/tag/v1.4-online-beta-test), pick your ReStreet folder, choose your online name and your server.
+4. Open the launcher (it shows **V1.4 · ONLINE BETA TEST**) and press **PLAY**.
+
+Your saves and settings are kept. Your online name is protected by a personal key stored in `online.json`: keep a copy of that file if you reinstall. To go back to offline, run the patch again and choose **Remove the online patch**.
+
+**Known issues:** no Rematch at the end of a match yet; Street Network video uploads are off for now; in Online Team Play the second player's game can rarely stay on the loading screen (restart the game); do not leave your player idle in a match, the game removes inactive players.
 
 ## What's new in v1.3
 
@@ -115,7 +141,9 @@ See [known issues and validation](docs/STATUS.md). If you find a problem, [open 
 
 I developed this project with assistance from **ChatGPT, OpenAI Codex and Anthropic's Claude (Claude Code)**, and directed and tested the work myself.
 
-Thanks to **Emran_Ahm3d** for investigating and suggesting the Windows patch line-ending fix, module-registration path handling, flexible game-data paths, the FootballCompEng function-boundary override and resource-compiler compatibility.
+Thanks to **Emran_Ahm3d** for investigating and suggesting the Windows patch line-ending fix, module-registration path handling, flexible game-data paths, the FootballCompEng function-boundary override and resource-compiler compatibility, and for the **Discord Rich Presence** integration in the launcher (the "Playing ReStreet PC" card, its `presence.json` configuration and setup guide), included since v1.4.
+
+Country leaderboard data: IP to country by [DB-IP.com](https://db-ip.com) (CC BY 4.0).
 
 Thanks to [ReXGlue](https://github.com/rexglue/rexglue-sdk), [Xenia](https://github.com/xenia-project/xenia), [extract-xiso](https://github.com/XboxDev/extract-xiso), LLVM, CMake, Ninja, .NET and MonoGame. See the [third-party notices](licenses/README.md).
 
