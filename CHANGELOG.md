@@ -1,5 +1,16 @@
 ﻿# ReStreet - FIFA Street 2012 Recompiled: changelog
 
+## v2.0.3 Online Beta
+
+World Tour crash fixes. Offered automatically by the launcher.
+
+### Fixed
+- **World Tour closed the game when leaving a match.** A piece of the game's code that World Tour calls at the end of a match was missing from the 2.0 recompilation.
+- **The game closed when saving** if Documents can't be used (for example a missing or blocked OneDrive folder). The error now goes back to the game, and saves fall back to `Binaries\UserData`.
+
+### Known
+- Player portraits in World Tour (My Squad) look scrambled on 2.0; being worked on.
+
 ## v2.0.2 Online Beta
 
 World Tour progress restored. Offered automatically by the launcher.

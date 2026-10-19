@@ -22,7 +22,7 @@ ReStreet is a Windows PC version of FIFA Street (2012), made by recompiling the 
 
 You need your own copy of the game: an **Xbox 360 ISO of FIFA Street (2012)**. The ISO and the game files are not included.
 
-**Current version: 2.0.2 Online Beta.**
+**Current version: 2.0.3 Online Beta.**
 
 ## What's new in 2.0
 
@@ -39,7 +39,7 @@ Full history: [CHANGELOG.md](CHANGELOG.md).
 
 **New install**
 
-1. Download **ReStreet-2.0.2-Setup.exe** from the [latest release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/latest). Optionally check it against the `.sha256` file next to it.
+1. Download **ReStreet-2.0.3-Setup.exe** from the [latest release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/latest). Optionally check it against the `.sha256` file next to it.
 2. Run it, choose your FIFA Street ISO, a folder, your online name and your server (Europe or South America).
 3. Open the launcher from the desktop shortcut and press **PLAY**.
 
@@ -77,6 +77,7 @@ On a weaker PC, choose the **Performance** profile in the launcher. Linux with W
 - START + B also shows the game's own "leave this session?" question behind the launcher's; close it with A.
 - A launcher room does not pull a player out of another lobby; leave that lobby first.
 - Two copies of the game on the same PC can lose the connection after an invite (different PCs are fine).
+- Player portraits in World Tour (My Squad) look scrambled; being worked on.
 
 More details and what was tested: [docs/STATUS.md](docs/STATUS.md).
 
