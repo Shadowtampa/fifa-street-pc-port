@@ -9,6 +9,30 @@ internal static class Program
     static void Main(string[] args)
     {
         ApplicationConfiguration.Initialize();
+        // --preview-lobby <png>: the lobby window with sample players and no server.
+        if (args.Length >= 2 && args[0] == "--preview-lobby")
+        {
+            using var lobby = new LobbyForm("127.0.0.1", "SamuelitoDaVila");
+            lobby.Show();
+            lobby.PreviewRows();
+            Application.DoEvents();
+            using var shot = new System.Drawing.Bitmap(lobby.Width, lobby.Height);
+            lobby.DrawToBitmap(shot, new System.Drawing.Rectangle(System.Drawing.Point.Empty, lobby.Size));
+            shot.Save(args[1]);
+            return;
+        }
+        // --preview-friends <png>: the friends window with sample rows and no server (127.0.0.1 refuses the connection).
+        if (args.Length >= 2 && args[0] == "--preview-friends")
+        {
+            using var friends = new FriendsForm("127.0.0.1", "SamuelitoDaVila", new string('a', 32));
+            friends.Show();
+            friends.PreviewRows();
+            Application.DoEvents();
+            using var shot = new System.Drawing.Bitmap(friends.Width, friends.Height);
+            friends.DrawToBitmap(shot, new System.Drawing.Rectangle(System.Drawing.Point.Empty, friends.Size));
+            shot.Save(args[1]);
+            return;
+        }
         if (args.Length >= 2 && args[0] == "--preview")
         {
             using var form = new LauncherForm();

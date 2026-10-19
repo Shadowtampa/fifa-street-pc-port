@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -12,8 +12,42 @@ using ReStreet.Ui;
 
 namespace FifaStreetLauncher;
 
-public class LauncherForm : Form, ISceneHost, IUiScaled
+public partial class LauncherForm : Form, ISceneHost, IUiScaled
 {
+    // Until it has finished once: starts the stadium pictures (stadium-thumbs next to the game exe) from the player's own
+    // game files, with the bundled tools\ReStreetAssetExplorer.exe, without waiting for it. Nothing from the game ships.
+    // The tool writes stadium-thumbs\.complete2 last (2: placeholder icons skipped + names.json, so older sets are redone),
+    // so an interrupted run is simply started again on the next PLAY.
+    private static void EnsureStadiumThumbs(string exeDir, string gameRoot)
+    {
+        string folder = Path.Combine(exeDir, "stadium-thumbs");
+        if (File.Exists(Path.Combine(folder, ".complete2"))) return;
+        // A run started from a previous PLAY may still be working on the same folder.
+        var running = Process.GetProcessesByName("ReStreetAssetExplorer");
+        foreach (var process in running) process.Dispose();
+        if (running.Length > 0) return;
+        string tool = Path.Combine(AppContext.BaseDirectory, "tools", "ReStreetAssetExplorer.exe");
+        if (!File.Exists(tool)) return;
+        try
+        {
+            var info = new ProcessStartInfo
+            {
+                FileName = tool,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            };
+            info.ArgumentList.Add("--stadiumpics");
+            info.ArgumentList.Add(gameRoot);
+            info.ArgumentList.Add(folder);
+            // Runs in the background so the game starts at once; the pictures show from the next session.
+            _ = Process.Start(info);
+        }
+        catch (Exception)
+        {
+            // The game still starts; the stadium picker then shows names only.
+        }
+    }
+
     private readonly UiScaler scaler;
     public float UiScale => scaler.Scale;
 
@@ -47,7 +81,10 @@ public class LauncherForm : Form, ISceneHost, IUiScaled
         "Custom"
     };
     private static readonly string[] ReadbackResolveModes = { "full", "some", "fast", "none" };
-    private static readonly int[] GameLanguageIds = { 1, 5, 4, 3, 6 };
+    // Xbox language ids; PtBrLanguageId is ReStreet's Brazilian Portuguese: English to the game (the translation takes
+    // the English slot) plus FIFASTREET_GAME_LANGUAGE=pt-BR, which loads locale_ptbr.big and shows cm/kg.
+    private const int PtBrLanguageId = 1001;
+    private static readonly int[] GameLanguageIds = { 1, 5, 4, 3, 6, PtBrLanguageId };
 
     private readonly GlassToggle vsyncBox = new();
     private readonly GlassToggle vrrBox = new();
@@ -72,7 +109,10 @@ public class LauncherForm : Form, ISceneHost, IUiScaled
     private readonly SlantButton compatibilityButton = new();
 
     private bool gameRunning;
+    private Process? gameProcess;  // the game this launcher started, while it runs
     private bool closeAfterGame;
+    private DiscordPresence? discord;
+    private System.Windows.Forms.Timer? presenceTimer;
     private string? changedDisplay;
     private DEVMODE previousDisplayMode;
     private bool advancedVisible;
@@ -104,12 +144,16 @@ public class LauncherForm : Form, ISceneHost, IUiScaled
         LoadDefaults();
         profileBox.SelectedIndex = 0;
         LoadSettings();
+        InitDeckOptions();
         applyingProfile = false;
         UpdateGraphicsApiState();
         UpdateRefreshRates();
         UpdateSummary();
-        UpdateStatus("Ready to play", true);
+        UpdateStatus(ReadyText(), true);
         scaler.Capture();
+        // Stay invisible until the new page has loaded, so the classic controls underneath never flash on screen.
+        if (Environment.GetEnvironmentVariable("RESTREET_CLASSIC_UI") != "1") Opacity = 0;
+        Shown += (_, _) => { InitGlassUi(); _ = CheckForUpdateAsync(); };
     }
 
     // Layout on an 8 px grid (design pixels, window 1250 x 720): left column margin 48; glass sheet
@@ -141,6 +185,22 @@ public class LauncherForm : Form, ISceneHost, IUiScaled
         if (scene != null && sceneSize == size) return;
         scene?.Dispose();
         sceneSize = size;
+        try
+        {
+            BuildSceneFull(size, s);
+        }
+        catch (Exception ex) when (ex is NotImplementedException or ArgumentException or System.Runtime.InteropServices.ExternalException or OutOfMemoryException or InvalidOperationException)
+        {
+            // Last resort (seen on Wine/Proton): a plain background, so the controls still draw on top of it.
+            scene?.Dispose();
+            scene = new Bitmap(Math.Max(1, size.Width), Math.Max(1, size.Height));
+            using var g = Graphics.FromImage(scene);
+            g.Clear(StreetTheme.Asphalt);
+        }
+    }
+
+    private void BuildSceneFull(Size size, float s)
+    {
         using var backdrop = StreetTheme.RenderBackdrop(size, DesignW, DesignH);
         using var blurred = StreetTheme.Blur(backdrop, 10);
         scene = new Bitmap(backdrop);
@@ -149,37 +209,69 @@ public class LauncherForm : Form, ISceneHost, IUiScaled
         g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
         g.ScaleTransform(s, s);
 
-        StreetTheme.DrawGlass(g, blurred, s, new RectangleF(SheetX, SheetY, SheetW, SheetH), 16);
+        StreetTheme.DrawGlass(g, blurred, s, new RectangleF(SheetX, SheetY, SheetW, SheetH), 14);
+        StreetTheme.DrawSection(g, "GENERAL", ContentX, 56, ContentX + ContentW);
+        StreetTheme.DrawSection(g, "DISPLAY", ContentX, 166, ContentX + ContentW);
+        StreetTheme.DrawSection(g, "GRAPHICS", ContentX, 350, ContentX + ContentW);
+        using (var line = new Pen(StreetTheme.Hairline, 1f)) g.DrawLine(line, ContentX, 607.5f, ContentX + ContentW, 607.5f);
+        // Status block: yellow rule beside the hardware summary and the online status.
+        using (var rule = new SolidBrush(StreetTheme.Yellow)) g.FillRectangle(rule, Left, 314, 3, 52);
+        using (var line = new Pen(StreetTheme.Hairline, 1f)) g.DrawLine(line, Left, 627.5f, Left + 480, 627.5f);
 
         using (var small = new Font(StreetTheme.CondensedFamily, 17, FontStyle.Bold, GraphicsUnit.Pixel))
         using (var yellow = new SolidBrush(StreetTheme.Yellow))
             StreetTheme.DrawSpaced(g, "FIFA STREET 2012 RECOMPILED", small, yellow, new PointF(Left, 56), 3.6f);
         StreetTheme.DrawWordmark(g, "ReStreet", new PointF(Left, 88), 178, StreetTheme.Ink);
-        var tag = new RectangleF(Left, 240, 184, 36);
+        var tag = new RectangleF(Left, 240, 270, 36);
         using (var bar = new SolidBrush(StreetTheme.Yellow)) g.FillPolygon(bar, StreetTheme.Slant(tag, 12));
         using (var tagFont = new Font(StreetTheme.CondensedFamily, 18, FontStyle.Bold, GraphicsUnit.Pixel))
         using (var dark = new SolidBrush(StreetTheme.YellowDark))
-            StreetTheme.DrawSpaced(g, "V1.3 · OFFLINE", tagFont, dark, new PointF(Left + 14, 246), 2.8f);
+            StreetTheme.DrawSpaced(g, "V" + LauncherVersion + " · ONLINE BETA", tagFont, dark, new PointF(Left + 14, 246), 2.8f);
 
         using var name = new Font("Segoe UI", 15, FontStyle.Regular, GraphicsUnit.Pixel);
         StreetTheme.DrawLabelValue(g, "Ported by:", "SamuelitoDaVila", name, StreetTheme.Ink, StreetTheme.Ink, Left, 642);
         StreetTheme.DrawLabelValue(g, "Contributions:", "Emran_Ahm3d", name, StreetTheme.Muted, StreetTheme.Muted, Left, 665);
     }
 
+    // online.json is written by the online patch, next to this launcher.
+    internal static (string Server, string Name, string Key)? LoadOnlineConfig()
+    {
+        try
+        {
+            string path = Path.Combine(AppContext.BaseDirectory, "online.json");
+            if (!File.Exists(path)) return null;
+            using var doc = JsonDocument.Parse(File.ReadAllText(path));
+            string? server = doc.RootElement.TryGetProperty("server", out var s) ? s.GetString() : null;
+            string? name = doc.RootElement.TryGetProperty("name", out var n) ? n.GetString() : null;
+            string? key = doc.RootElement.TryGetProperty("key", out var k) ? k.GetString() : null;
+            return string.IsNullOrWhiteSpace(server) || string.IsNullOrWhiteSpace(name) ? null : (server.Trim(), name.Trim(), (key ?? "").Trim());
+        }
+        catch (Exception error) when (error is IOException or JsonException or UnauthorizedAccessException)
+        {
+            return null;
+        }
+    }
+
+    private string ReadyText()
+    {
+        var online = LoadOnlineConfig();
+        if (online != null && !onlineModeBox.Checked) return "Ready to play offline (online is off)";
+        return online == null ? "Online is not set up. Run the online patch again" : "Ready to play online as " + online.Value.Name;
+    }
+
     private void BuildInterface()
     {
         SuspendLayout();
 
-        // Row 0: profile and game language. Rows 1-4: two columns. Each block is 16 + 8 + 36 = 60 high.
-        const int row0 = 56, pitch = 84;
-        void Field(string label, ComboBox box, int x, int row)
+        // Three sections (titles painted in BuildScene at y 56 / 166 / 350). A field is a 16 px caption,
+        // 6 px gap and a 36 px box; rows inside a section are 74 apart.
+        void Field(string label, ComboBox box, int x, int y)
         {
-            int y = row0 + row * pitch;
             AddFieldLabel(this, label, x, y);
-            ConfigureCombo(box, x, y + 24, ColW);
+            ConfigureCombo(box, x, y + 22, ColW);
             Controls.Add(box);
         }
-        Field("Profile", profileBox, Col1, 0);
+        Field("Profile", profileBox, Col1, 84);
         profileBox.AccessibleName = "Performance profile";
         profileBox.Items.AddRange(ProfileNames);
         profileBox.SelectedIndex = 0;
@@ -190,16 +282,16 @@ public class LauncherForm : Form, ISceneHost, IUiScaled
         msaaBox.CheckedChanged += (_, _) => MarkCustomProfile();
         occlusionQueryBox.CheckedChanged += (_, _) => MarkCustomProfile();
 
-        Field("Game language", gameLanguageBox, Col2, 0);
+        Field("Game language", gameLanguageBox, Col2, 84);
         gameLanguageBox.AccessibleName = "Game language";
-        Field("Resolution", resolutionBox, Col1, 1);
-        Field("Refresh rate", refreshBox, Col2, 1);
-        Field("Display mode", displayModeBox, Col1, 2);
-        Field("Monitor", monitorBox, Col2, 2);
-        Field("Graphics API", graphicsApiBox, Col1, 3);
-        Field("GPU", gpuBox, Col2, 3);
-        Field("Post-processing", postEffectBox, Col1, 4);
-        Field("Internal resolution", internalResolutionBox, Col2, 4);
+        Field("Resolution", resolutionBox, Col1, 194);
+        Field("Refresh rate", refreshBox, Col2, 194);
+        Field("Display mode", displayModeBox, Col1, 268);
+        Field("Monitor", monitorBox, Col2, 268);
+        Field("Graphics API", graphicsApiBox, Col1, 378);
+        Field("GPU", gpuBox, Col2, 378);
+        Field("Post-processing", postEffectBox, Col1, 452);
+        Field("Internal resolution", internalResolutionBox, Col2, 452);
 
         // Switches in one row, 24 px apart.
         vsyncBox.CheckedChanged += (_, _) => UpdateGraphicsApiState();
@@ -207,7 +299,7 @@ public class LauncherForm : Form, ISceneHost, IUiScaled
         int switchX = Col1;
         foreach (var (box, text) in new (GlassToggle, string)[] { (vsyncBox, "VSync"), (vrrBox, "VRR / Tearing (D3D12)"), (msaaBox, "Native 2x MSAA") })
         {
-            ConfigureCheck(box, text, switchX, 488);
+            ConfigureCheck(box, text, switchX, 526);
             Controls.Add(box);
             switchX += box.GetPreferredSize(Size.Empty).Width + 24;
         }
@@ -217,7 +309,7 @@ public class LauncherForm : Form, ISceneHost, IUiScaled
             Text = "Weaker PC? Pick the Performance profile.",
             ForeColor = TextSecondary,
             Font = StreetTheme.Body(10F),
-            Bounds = new Rectangle(ContentX, 536, ContentW, 40)
+            Bounds = new Rectangle(ContentX, 568, ContentW, 20)
         };
         Controls.Add(tip);
 
@@ -253,13 +345,13 @@ public class LauncherForm : Form, ISceneHost, IUiScaled
         hardwareLabel.Font = StreetTheme.Body(11F);
         hardwareLabel.AutoEllipsis = true;
         hardwareLabel.TextAlign = ContentAlignment.MiddleLeft;
-        hardwareLabel.Bounds = new Rectangle(Left, 312, 512, 24);
+        hardwareLabel.Bounds = new Rectangle(Left + 16, 314, 496, 24);
         Controls.Add(hardwareLabel);
 
         statusLabel.Font = StreetTheme.Body(11F, FontStyle.Bold);
         statusLabel.ForeColor = TextSecondary;
         statusLabel.TextAlign = ContentAlignment.MiddleLeft;
-        statusLabel.Bounds = new Rectangle(Left, 344, 512, 24);
+        statusLabel.Bounds = new Rectangle(Left + 16, 342, 496, 24);
         Controls.Add(statusLabel);
 
         var playButton = new SlantButton
@@ -271,6 +363,41 @@ public class LauncherForm : Form, ISceneHost, IUiScaled
         };
         playButton.Click += (_, _) => LaunchGame();
         Controls.Add(playButton);
+        if (LoadOnlineConfig() != null)
+        {
+            // Online build: PLAY shares its row with the lobby and the friends list.
+            playButton.Width = 240;
+            var lobbyButton = new SlantButton
+            {
+                Kind = SlantKind.Glass,
+                Text = "LOBBY",
+                Font = StreetTheme.Condensed(22, FontStyle.Bold),
+                Bounds = new Rectangle(Left + 240 + 8, 520, 112, 88)
+            };
+            lobbyButton.Click += (_, _) =>
+            {
+                var current = LoadOnlineConfig();
+                if (current == null) return;
+                using var lobby = new LobbyForm(current.Value.Server, current.Value.Name);
+                lobby.ShowDialog(this);
+            };
+            Controls.Add(lobbyButton);
+            var friendsButton = new SlantButton
+            {
+                Kind = SlantKind.Glass,
+                Text = "FRIENDS",
+                Font = StreetTheme.Condensed(22, FontStyle.Bold),
+                Bounds = new Rectangle(Left + 240 + 8 + 112 + 8, 520, 112, 88)
+            };
+            friendsButton.Click += (_, _) =>
+            {
+                var current = LoadOnlineConfig();
+                if (current == null) return;
+                using var friends = new FriendsForm(current.Value.Server, current.Value.Name, current.Value.Key);
+                friends.ShowDialog(this);
+            };
+            Controls.Add(friendsButton);
+        }
         AcceptButton = playButton;
         ActiveControl = playButton;
 
@@ -282,8 +409,8 @@ public class LauncherForm : Form, ISceneHost, IUiScaled
     {
         advancedPanel.Bounds = new Rectangle(PanelX, PanelY, PanelW, 192);
         advancedPanel.FillColor = StreetTheme.PanelFlat;
-        advancedPanel.BorderColor = Color.FromArgb(70, 72, 76);
-        advancedPanel.Radius = 16;
+        advancedPanel.BorderColor = Color.FromArgb(52, 55, 60);
+        advancedPanel.Radius = 14;
         advancedPanel.Visible = false;
 
         const int browseW = 96, gap = 8, innerW = PanelW - 2 * Pad;
@@ -304,13 +431,13 @@ public class LauncherForm : Form, ISceneHost, IUiScaled
     {
         compatibilityPanel.Bounds = new Rectangle(PanelX, PanelY, PanelW, 248);
         compatibilityPanel.FillColor = StreetTheme.PanelFlat;
-        compatibilityPanel.BorderColor = Color.FromArgb(70, 72, 76);
-        compatibilityPanel.Radius = 16;
+        compatibilityPanel.BorderColor = Color.FromArgb(52, 55, 60);
+        compatibilityPanel.Radius = 14;
         compatibilityPanel.Visible = false;
 
         compatibilityPanel.Controls.Add(new ThemedLabel
         {
-            Text = "COMPATIBILITY", Font = StreetTheme.Condensed(14F, FontStyle.Bold), ForeColor = StreetTheme.Ink,
+            Text = "COMPATIBILITY", Font = StreetTheme.Condensed(12F, FontStyle.Bold), ForeColor = StreetTheme.Yellow,
             Bounds = new Rectangle(Pad, Pad, 400, 24)
         });
         compatibilityPanel.Controls.Add(new ThemedLabel
@@ -348,6 +475,13 @@ public class LauncherForm : Form, ISceneHost, IUiScaled
         advancedButton.Click += (_, _) => ToggleAdvanced();
         advancedChevron.Click += (_, _) => ToggleAdvanced();
         compatibilityButton.Click += (_, _) => ToggleCompatibility();
+        onlineModeBox.CheckedChanged += (_, _) =>
+        {
+            if (applyingProfile) return;  // loading settings.json, not a player's change
+            if (!gameRunning) UpdateStatus(ReadyText(), true);
+            try { SaveSettings(); }
+            catch (IOException ex) { Debug.WriteLine(ex.Message); }
+        };
 
         monitorBox.SelectedIndexChanged += (_, _) =>
         {
@@ -368,7 +502,7 @@ internalResolutionBox.SelectedIndexChanged += (_, _) =>
     if (!gameRunning)
         UpdateStatus(internalResolutionBox.SelectedIndex >= 2
             ? "High internal resolution may reduce FPS"
-            : "Ready to play", true);
+            : ReadyText(), true);
 };
 refreshBox.SelectedIndexChanged += (_, _) => UpdateSummary();
 gpuBox.SelectedIndexChanged += (_, _) => UpdateSummary();
@@ -502,7 +636,7 @@ displayModeBox.SelectedIndexChanged += (_, _) => { UpdateRefreshRates(); UpdateS
         {
             Text = text.ToUpperInvariant(),
             ForeColor = TextSecondary,
-            Font = StreetTheme.Condensed(9F, FontStyle.Bold),
+            Font = StreetTheme.Condensed(8.5F, FontStyle.Bold),
             Bounds = new Rectangle(x, y, ColW, 16)
         });
     }
@@ -534,11 +668,14 @@ displayModeBox.SelectedIndexChanged += (_, _) => { UpdateRefreshRates(); UpdateS
 
     private void LoadDefaults()
     {
+        // 1.5.5 layout: Binaries\ (exe, DLLs, Logs) and Game\ (the game's files); older installs had Game\ + GameData\.
+        bool oldLayout = !Directory.Exists(Path.Combine(AppContext.BaseDirectory, "Binaries")) &&
+            Directory.Exists(Path.Combine(AppContext.BaseDirectory, "GameData"));
         exePathBox.Text =
-            Path.Combine(AppContext.BaseDirectory, "Game", "fifastreet.exe");
+            Path.Combine(AppContext.BaseDirectory, oldLayout ? "Game" : "Binaries", "fifastreet.exe");
 
         gamePathBox.Text =
-            Path.Combine(AppContext.BaseDirectory, "GameData");
+            Path.Combine(AppContext.BaseDirectory, oldLayout ? "GameData" : "Game");
 
         displayModeBox.Items.AddRange(new object[]
         {
@@ -553,7 +690,7 @@ displayModeBox.SelectedIndexChanged += (_, _) => { UpdateRefreshRates(); UpdateS
             "Vulkan"
         });
         graphicsApiBox.SelectedIndex = 0;
-        gameLanguageBox.Items.AddRange(new object[] { "English", "Español", "Français", "Deutsch", "Italiano" });
+        gameLanguageBox.Items.AddRange(new object[] { "English", "Español", "Français", "Deutsch", "Italiano", "Português (Brasil)" });
         gameLanguageBox.SelectedIndex = 0;
 
         readbackResolveBox.Items.AddRange(new object[]
@@ -1086,16 +1223,26 @@ displayModeBox.SelectedIndexChanged += (_, _) => { UpdateRefreshRates(); UpdateS
                 UseShellExecute = false
             };
 
-            // ReXGlue aplica a configuração por esta ordem:
-            // argumentos CLI -> ficheiro TOML -> variáveis de ambiente.
-            // Portanto, usar REX_* aqui garante que as escolhas do launcher
-            // têm prioridade sobre qualquer configuração guardada no jogo.
+            // ReXGlue resolves each setting in this order, lowest priority first:
+            // built-in default -> fifastreet.toml -> REX_* environment -> command line.
+            // The REX_* variables set here therefore win over the TOML file.
 
             startInfo.Environment["REX_GAME_DATA_ROOT"] = gameRoot;
+            int internalResolutionScale = Math.Max(1, internalResolutionBox.SelectedIndex + 1);
+            string readbackResolve = ReadbackResolveModes[Math.Clamp(readbackResolveBox.SelectedIndex, 0, ReadbackResolveModes.Length - 1)];
+            bool deck = IsDeckBase(executableDirectory);
+            if (deck)
+            {
+                ApplyDeckLaunch(startInfo, executableDirectory, graphicsApi, adapter);
+                // Not in fifastreet.toml: the game language and the monitor go as variables, like on 1.5.
+                ApplyGameLanguage(startInfo);
+                startInfo.Environment["REX_MONITOR"] = (monitor + 1).ToString();
+            }
+            else
+            {
             startInfo.Environment["REX_VIDEO_MODE_WIDTH"] = width.ToString();
             startInfo.Environment["REX_VIDEO_MODE_HEIGHT"] = height.ToString();
             // The display size does not change the Xbox 360 render targets.
-         int internalResolutionScale = Math.Max(1, internalResolutionBox.SelectedIndex + 1);
 
 startInfo.Environment["REX_DRAW_RESOLUTION_SCALE_X"] =
     internalResolutionScale.ToString();
@@ -1150,13 +1297,13 @@ startInfo.Environment["REX_DRAW_RESOLUTION_SCALE_Y"] =
                 // Vulkan-only image settings that remove the goal-replay blur
                 // (user-tested together on AMD; not bisected to a single one).
                 startInfo.Environment["REX_DRAW_RESOLUTION_SCALED_TEXTURE_OFFSETS"] = "false";
-                startInfo.Environment["REX_DEPTH_FLOAT24_CONVERT_IN_PIXEL_SHADER"] = "true";
+                startInfo.Environment["REX_DEPTH_FLOAT24_CONVERT_IN_PIXEL_SHADER"] = "true"; // needed: false (or float24 round) blurs goal replays
                 startInfo.Environment["REX_GAMMA_RENDER_TARGET_AS_UNORM16"] = "false";
                 startInfo.Environment["REX_SNORM16_RENDER_TARGET_FULL_RANGE"] = "false";
                 startInfo.Environment["REX_VULKAN_DYNAMIC_RENDERING"] = "false";
                 startInfo.Environment["REX_HALF_PIXEL_OFFSET"] = "false";
                 startInfo.Environment["REX_ANISOTROPIC_OVERRIDE"] = "-1";
-                startInfo.Environment["REX_DIRECT_HOST_RESOLVE"] = "false";
+                startInfo.Environment["REX_DIRECT_HOST_RESOLVE"] = "false"; // true leaves some court floors black
                 // Override legacy TOML values: checked means FIFO, unchecked
                 // requests immediate presentation without display synchronization.
                 // With VSync on, prefer MAILBOX (latest frame wins, no tearing, never blocks the queue).
@@ -1169,7 +1316,6 @@ startInfo.Environment["REX_DRAW_RESOLUTION_SCALE_Y"] =
             }
 
             // Compatibilidade / coerência GPU.
-            string readbackResolve = ReadbackResolveModes[Math.Clamp(readbackResolveBox.SelectedIndex, 0, ReadbackResolveModes.Length - 1)];
             startInfo.Environment["REX_READBACK_RESOLVE"] = readbackResolve;
             // Keep synchronous Full Readback; reduce scheduler round trips for
             // short GPU work without reading before its fence is signalled.
@@ -1190,24 +1336,54 @@ startInfo.Environment["REX_DRAW_RESOLUTION_SCALE_Y"] =
                 occlusionQueryBox.Checked ? "true" : "false";
             startInfo.Environment["REX_ASYNC_SHADER_COMPILATION"] =
                 asyncShadersBox.Checked ? "true" : "false";
+            }
+            ApplyControls(startInfo);
 
             startInfo.Environment["REX_LOG_VERBOSE"] = "false";
             startInfo.Environment["REX_LOG_LEVEL"] = "info";
             startInfo.Environment["REX_LOG_FRAME_STATS"] = logFrameStatsBox.Checked ? "true" : "false";
             startInfo.Environment["REX_BIND_DEBUG_OVERLAY"] = "Home";
             startInfo.Environment["REX_LOG_FILE"] = logFile;
+            // Performance report (FPS per scene), read back after the session: see PerfReport.cs.
+            string perfReport = Path.Combine(logsDir, "perf-report.json");
+            try { File.Delete(perfReport); } catch (IOException) { }
+            startInfo.Environment["REX_PERF_REPORT"] = perfReport;
+            var perfSettings = new Dictionary<string, object?>
+            {
+                ["api"] = graphicsApi, ["profile"] = profileBox.Text, ["resolution"] = $"{width}x{height}",
+                ["refresh"] = refresh, ["fullscreen"] = fullscreen, ["internal_scale"] = internalResolutionScale,
+                ["vsync"] = vsyncBox.Checked, ["post"] = postEffect, ["msaa"] = msaaBox.Checked,
+                ["readback"] = deck ? "deck" : readbackResolve,
+            };
+
+            // Online play: the server and the player name come from the online patch.
+            var online = LoadOnlineConfig();
+            if (online != null && onlineModeBox.Checked)
+            {
+                startInfo.Environment["FIFASTREET_SERVER"] = online.Value.Server;
+                startInfo.Environment["FIFASTREET_PLAYER_NAME"] = online.Value.Name;
+                startInfo.Environment["FIFASTREET_PLAYER_KEY"] = online.Value.Key;
+                startInfo.Environment["FIFASTREET_ONLINE_EXPERIMENT"] = "1";
+                startInfo.Environment["FIFASTREET_ONLINE_ENDPOINT_PROBE"] = "1";
+                startInfo.Environment["FIFASTREET_NET_DIAG"] = "";
+                if (!logFrameStatsBox.Checked) startInfo.Environment["REX_LOG_LEVEL"] = "warn";
+            }
 
             // Mantemos game_data_root também como argumento porque esta
             // aplicação já confirmou que o aceita diretamente.
             startInfo.ArgumentList.Add($"--game_data_root={gameRoot}");
 
-            SaveSettings();
+            // Settings and the diagnostic summary are conveniences: a read-only install folder must not
+            // prevent the game from starting.
+            try { SaveSettings(); }
+            catch (IOException ex) { Debug.WriteLine(ex.Message); }
 
             string launcherDebug = Path.Combine(
                 logsDir,
                 "launcher_settings.txt"
             );
 
+            try {
             File.WriteAllText(
                 launcherDebug,
                 $"Resolution={width}x{height}{Environment.NewLine}" +
@@ -1230,12 +1406,25 @@ startInfo.Environment["REX_DRAW_RESOLUTION_SCALE_Y"] =
                 $"OcclusionQueries={occlusionQueryBox.Checked}{Environment.NewLine}" +
                 $"AsyncShaders={asyncShadersBox.Checked}{Environment.NewLine}"
             );
+            } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { Debug.WriteLine(ex.Message); }
+
+            // Discord live state: the game DLL writes "mode=<key>" to this file (presence_state.cpp).
+            // A file left over from the last session would show a stale mode, so start from none.
+            var presenceConfig = PresenceConfig.Load(AppContext.BaseDirectory);
+            if (presenceConfig.Usable && ResolveStateFile(presenceConfig.StateFile) is { } presenceFile)
+            {
+                try { File.Delete(presenceFile); }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { Debug.WriteLine(ex.Message); }
+                startInfo.Environment["FIFASTREET_PRESENCE_FILE"] = presenceFile;
+            }
 
             UpdateStatus("Starting ReStreet...", true);
 
-            ApplyMonitorRefresh(monitor, refresh, fullscreen ? width : 0, fullscreen ? height : 0);
+            if (!deck) ApplyMonitorRefresh(monitor, refresh, fullscreen ? width : 0, fullscreen ? height : 0);
+            EnsureStadiumThumbs(Path.GetDirectoryName(exe)!, gameRoot);
             using var process = Process.Start(startInfo);
             gameRunning = process != null;
+            gameProcess = process;
 
             UpdateStatus(
                 process != null
@@ -1244,8 +1433,12 @@ startInfo.Environment["REX_DRAW_RESOLUTION_SCALE_Y"] =
                 process != null
             );
             if (process != null) {
+                StartPresence(process.Id, graphicsApi, width, height, refresh,
+                              internalResolutionScale, gpuBox.Text,
+                              GameLanguageIds[Math.Max(0, gameLanguageBox.SelectedIndex)]);
                 await process.WaitForExitAsync();
-                UpdateStatus("Ready to play", true);
+                OnSessionEnded(perfReport, logFile, perfSettings, process.ExitCode);
+                UpdateStatus(ReadyText(), true);
             }
         }
         catch (Exception ex)
@@ -1260,10 +1453,107 @@ startInfo.Environment["REX_DRAW_RESOLUTION_SCALE_Y"] =
             );
         }
         finally {
+            StopPresence();
             RestoreMonitorRefresh();
             gameRunning = false;
+            gameProcess = null;
             if (closeAfterGame) Close();
         }
+    }
+
+    // ---- Discord Rich Presence (ReStreet presence v2) --------------------------
+    // Off unless presence.json exists next to the launcher and names a Discord
+    // application id. Everything is wrapped: a missing Discord, a broken config or
+    // a closed pipe can never stop the game from starting or keep the launcher open.
+
+    private void StartPresence(int pid, string graphicsApi, int width, int height,
+                               string refresh, int internalScale, string gpuName,
+                               int gameLanguageId)
+    {
+        try
+        {
+            var config = PresenceConfig.Load(AppContext.BaseDirectory);
+            if (!config.Usable) return;
+
+            // The card follows the game language chosen in the launcher.
+            var text = config.Resolve(PresenceConfig.LanguageCode(gameLanguageId));
+            string apiName = graphicsApi == "D3D12" ? "Direct3D 12" : "Vulkan";
+
+            string Fill(string template) => template
+                .Replace("{api}", apiName)
+                .Replace("{width}", width.ToString())
+                .Replace("{height}", height.ToString())
+                .Replace("{refresh}", refresh)
+                .Replace("{internal}", internalScale + "x")
+                .Replace("{profile}", profileBox.Text)
+                .Replace("{gpu}", gpuName);
+
+            var started = DateTimeOffset.UtcNow;
+            string? stateFilePath = ResolveStateFile(config.StateFile);
+            var stateFile = new PresenceStateFile(stateFilePath);
+
+            DiscordActivity Compose()
+            {
+                stateFile.Poll();
+
+                // The game side writes a canonical mode name (world_tour), never a
+                // translated one, so it never has to know the player's language.
+                string? live = stateFile.State;
+                if (live is null && stateFile.Mode is { Length: > 0 } mode)
+                {
+                    live = text.Modes is not null && text.Modes.TryGetValue(mode, out var label)
+                        ? label
+                        : mode.Replace('_', ' ');
+                }
+
+                return new DiscordActivity
+                {
+                    Details = stateFile.Details ?? Fill(text.Details ?? ""),
+                    State = live ?? Fill(text.State ?? ""),
+                    Start = started,
+                    LargeImage = config.LargeImage,
+                    LargeText = Fill(text.LargeText ?? ""),
+                    SmallImage = graphicsApi == "D3D12"
+                        ? config.SmallImageD3D12 : config.SmallImageVulkan,
+                    SmallText = apiName,
+                    Buttons = config.Buttons.ConvertAll(
+                        b => new DiscordButton { Label = b.Label, Url = b.Url })
+                };
+            }
+
+            discord = new DiscordPresence(config.ApplicationId!.Trim(), pid);
+            discord.Set(Compose());
+
+            if (stateFilePath is not null)
+            {
+                presenceTimer = new System.Windows.Forms.Timer { Interval = 5000 };
+                presenceTimer.Tick += (_, _) =>
+                {
+                    try { discord?.Set(Compose()); } catch { }
+                };
+                presenceTimer.Start();
+            }
+        }
+        catch
+        {
+            discord = null;
+        }
+    }
+
+    private void StopPresence()
+    {
+        try { presenceTimer?.Stop(); presenceTimer?.Dispose(); } catch { }
+        presenceTimer = null;
+        try { discord?.Dispose(); } catch { }
+        discord = null;
+    }
+
+    private string? ResolveStateFile(string? configured)
+    {
+        if (string.IsNullOrWhiteSpace(configured)) return null;
+        if (Path.IsPathRooted(configured)) return configured;
+        var exeDir = Path.GetDirectoryName(exePathBox.Text.Trim());
+        return string.IsNullOrEmpty(exeDir) ? null : Path.Combine(exeDir, configured);
     }
 
     protected override void OnFormClosing(FormClosingEventArgs e)
@@ -1424,7 +1714,7 @@ startInfo.Environment["REX_DRAW_RESOLUTION_SCALE_Y"] =
     }
 
     // post effect: 0 none, 1 FXAA, 2 FXAA extreme; internal resolution index = scale - 1;
-    // readback: 0 full, 1 some (visually broken, never used), 2 fast
+    // readback: 0 full, 1 some (default since v1.1), 2 fast
     private void ApplyProfile()
     {
         if (applyingProfile)
@@ -1491,7 +1781,8 @@ startInfo.Environment["REX_DRAW_RESOLUTION_SCALE_Y"] =
                 VSync = vsyncBox.Checked,
                 VRR = vrrBox.Checked,
                 MSAA = msaaBox.Checked,
-                Profile = profileBox.SelectedIndex
+                Profile = profileBox.SelectedIndex,
+                OnlineMode = onlineModeBox.Checked
             };
 
             string json = JsonSerializer.Serialize(
@@ -1524,16 +1815,13 @@ startInfo.Environment["REX_DRAW_RESOLUTION_SCALE_Y"] =
 
             if (settings == null)
                 return;
+            onlineModeBox.Checked = settings.OnlineMode;
             int languageIndex = Array.IndexOf(GameLanguageIds, settings.GameLanguage);
             gameLanguageBox.SelectedIndex = Math.Max(0, languageIndex);
 
-            exePathBox.Text = settings.ExePath ?? exePathBox.Text;
-            const string oldDefaultExe = @"C:\Users\Samuel M\Desktop\FIFASTREET - 2012\Jogo\FifaStreetRex\out\build\win-amd64-debug\fifastreet.exe";
-            string releaseExe = oldDefaultExe.Replace("win-amd64-debug", "win-amd64-release");
-            if (string.Equals(exePathBox.Text, oldDefaultExe, StringComparison.OrdinalIgnoreCase)
-                && File.Exists(releaseExe))
-                exePathBox.Text = releaseExe;
-            gamePathBox.Text = settings.GamePath ?? gamePathBox.Text;
+            // A saved path that no longer exists (the folders moved to the 1.5.5 layout) gives way to the default.
+            if (settings.ExePath != null && File.Exists(settings.ExePath)) exePathBox.Text = settings.ExePath;
+            if (settings.GamePath != null && Directory.Exists(settings.GamePath)) gamePathBox.Text = settings.GamePath;
 
             displayModeBox.SelectedIndex =
                 settings.Fullscreen ? 0 : 1;
@@ -1608,8 +1896,10 @@ if (settings.InternalResolutionScale >= 0 &&
 
     private void ApplyGameLanguage(ProcessStartInfo startInfo)
     {
-        int index = Math.Max(0, gameLanguageBox.SelectedIndex);
-        startInfo.Environment["REX_USER_LANGUAGE"] = GameLanguageIds[index].ToString(System.Globalization.CultureInfo.InvariantCulture);
+        int id = GameLanguageIds[Math.Max(0, gameLanguageBox.SelectedIndex)];
+        startInfo.Environment["REX_USER_LANGUAGE"] = (id == PtBrLanguageId ? 1 : id).ToString(System.Globalization.CultureInfo.InvariantCulture);
+        if (id == PtBrLanguageId) startInfo.Environment["FIFASTREET_GAME_LANGUAGE"] = "pt-BR";
+        else startInfo.Environment.Remove("FIFASTREET_GAME_LANGUAGE");
     }
 
     private sealed class MessiPicture : PictureBox
@@ -1672,6 +1962,7 @@ public class LauncherSettings
     public bool VRR { get; set; } = true;
     public bool MSAA { get; set; } = false;
     public int Profile { get; set; } = 0;
+    public bool OnlineMode { get; set; } = true;
 }
 
 public class RoundedPanel : Panel, IFlatPanel

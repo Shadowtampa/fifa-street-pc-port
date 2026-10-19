@@ -1,0 +1,727 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ReStreet</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --glass: rgba(255,255,255,.05);
+  --glass-strong: rgba(255,255,255,.09);
+  --edge: rgba(255,255,255,.28);
+  --ink: #fff; --muted: rgba(255,255,255,.66);
+  --accent: #ffcf2e; --accent-2: #ff7a2e;
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}body{font-family:Inter,"Segoe UI",system-ui,sans-serif;color:var(--ink);background:#0b0c12;overflow:hidden;user-select:none}
+
+/* Living background: game art drifting under coloured light blobs */
+.glow{position:absolute;inset:0;z-index:0;pointer-events:none}
+.win>*:not(.glow){position:relative;z-index:1}
+.blob{position:absolute;border-radius:50%;filter:blur(110px) saturate(.75);opacity:.32;mix-blend-mode:screen}
+.b1{width:520px;height:520px;background:#c4561a;left:-160px;top:-180px;animation:float1 18s ease-in-out infinite alternate}
+.b2{width:480px;height:480px;background:#3a4fb8;right:-120px;bottom:-200px;animation:float2 22s ease-in-out infinite alternate}
+.b3{width:380px;height:380px;background:#8a3a6a;right:260px;top:-160px;animation:float1 24s ease-in-out infinite alternate-reverse}
+@keyframes drift{to{transform:scale(1.08) translate(-2%,1%)}}
+@keyframes float1{to{transform:translate(120px,140px) scale(1.15)}}
+@keyframes float2{to{transform:translate(-140px,-110px) scale(1.1)}}
+
+/* Liquid glass surface */
+.glass{position:relative;background:linear-gradient(135deg,var(--glass-strong),var(--glass) 60%);
+  backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);
+  border-radius:28px;box-shadow:0 30px 80px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 0 rgba(255,255,255,.06)}
+.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(140deg,var(--edge),rgba(255,255,255,.04) 40%,rgba(255,255,255,.18));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+/* moving specular sheen */
+.glass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(600px 220px at var(--mx,30%) -10%,rgba(255,255,255,.22),transparent 60%)}
+
+.win{position:relative;overflow:hidden;border-radius:30px;background:#0b0c12;box-shadow:0 40px 120px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.08);
+  width:100vw;height:100vh;border-radius:0;display:grid;grid-template-columns:250px 1fr;gap:18px;padding:18px;
+  animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(24px) scale(.98)}}
+
+/* Sidebar */
+.side{padding:22px 16px;border-radius:24px;background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02));backdrop-filter:blur(24px) saturate(170%);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),inset 0 0 0 1px rgba(255,255,255,.08);display:flex;flex-direction:column;gap:6px}
+.logo{font-weight:800;font-size:28px;letter-spacing:-.5px;padding:4px 10px 18px}
+.logo b{color:var(--accent)}
+.tag{display:inline-block;white-space:nowrap;align-self:flex-start;margin:0 10px 18px;font-size:11px;font-weight:700;letter-spacing:1.6px;padding:6px 10px;border-radius:999px;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#1a1200}
+.nav{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;color:var(--muted);font-weight:600;cursor:pointer;transition:.25s}
+.nav:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav.on{background:rgba(255,255,255,.14);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+.nav svg{width:20px;height:20px;opacity:.9}
+.spacer{flex:1}
+.credits{padding:4px 12px 10px;font-size:12px;line-height:1.7;color:var(--muted)}
+.credits h4{font-size:10px;letter-spacing:1.6px;font-weight:700;margin-bottom:2px}
+.credits b{color:var(--ink);font-weight:700}
+body.deck .old-only,body:not(.deck) .deck-only{display:none!important}
+.side .tg.side-tg{margin:0 0 10px;padding:10px 12px;font-size:13px;font-weight:600}
+.me{display:flex;align-items:center;gap:12px;padding:12px;border-radius:18px;background:rgba(0,0,0,.18)}
+.av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#ff3d6e);display:grid;place-items:center;font-weight:800;color:#1a1200}
+.me small{display:block;color:var(--muted);font-size:12px}
+.dot{width:8px;height:8px;border-radius:50%;background:#4ade80;display:inline-block;margin-right:6px;box-shadow:0 0 10px #4ade80}
+
+/* Main */
+.main{display:grid;grid-template-rows:1fr auto;gap:18px;min-height:0}
+.hero{overflow:hidden;padding:38px;display:flex;flex-direction:column;justify-content:flex-end}
+.hero .shot{position:absolute;inset:0;border-radius:inherit;background:url(bg.jpg) 85% 70%/150% auto;opacity:.38;filter:saturate(.7);mask-image:linear-gradient(180deg,transparent,#000 60%)}
+.hero h1{position:relative;font-size:clamp(34px,5vw,64px);font-weight:800;line-height:1;letter-spacing:-1.5px}
+.hero h1 span{background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;color:transparent}
+.hero p{position:relative;color:var(--muted);max-width:520px;margin:14px 0 26px;font-size:15px}
+.row{position:relative;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.play{position:relative;border:0;cursor:pointer;font:800 18px Inter;letter-spacing:2px;color:#1a1200;padding:18px 54px;border-radius:999px;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));box-shadow:0 12px 40px rgba(255,140,40,.45),inset 0 1px 0 rgba(255,255,255,.6);
+  overflow:hidden;transition:transform .2s}
+.play:hover{transform:translateY(-2px) scale(1.02)}
+.play::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);
+  transform:skewX(-20deg);animation:shine 3.2s ease-in-out infinite}
+@keyframes shine{0%,60%{left:-60%}100%{left:130%}}
+.chip{padding:12px 18px;border-radius:999px;font-weight:600;font-size:14px}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:18px}
+.card{padding:20px 22px;transition:transform .3s}
+.card:hover{transform:translateY(-4px)}
+.card h3{font-size:12px;letter-spacing:1.6px;color:var(--muted);font-weight:700;margin-bottom:10px}
+.big{font-size:34px;font-weight:800}
+.card small{color:var(--muted)}
+.bar{height:6px;border-radius:9px;background:rgba(255,255,255,.12);margin-top:12px;overflow:hidden}
+.bar i{display:block;height:100%;width:72%;border-radius:9px;background:linear-gradient(90deg,var(--accent),var(--accent-2));animation:fill 1.6s .4s cubic-bezier(.2,.8,.2,1) both}
+@keyframes fill{from{width:0}}
+
+/* Update pop-up: over the launcher, the rest dimmed and blurred */
+.veil{position:absolute!important;inset:0;z-index:5!important;display:grid;place-items:center;border-radius:inherit;
+  background:rgba(5,6,12,.45);backdrop-filter:blur(10px);animation:fade .5s 1.2s both;transition:opacity .35s}
+.veil.gone{opacity:0;pointer-events:none}
+.browser [data-win]{display:none}
+#perfAsk,#perfAsk .toast,#updAsk,#updAsk .toast{animation-delay:0s}
+.upbar{height:8px;border-radius:8px;background:rgba(255,255,255,.12);overflow:hidden;margin:4px 0 18px;display:none}.upbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .3s}
+@keyframes fade{from{opacity:0}}
+.toast{width:420px;padding:28px 28px 24px;text-align:center;animation:pop .7s 1.3s cubic-bezier(.2,1.2,.3,1) both}
+@keyframes pop{from{opacity:0;transform:translateY(24px) scale(.92)}}
+.toast .ico{width:56px;height:56px;margin:0 auto 14px;border-radius:18px;display:grid;place-items:center;font-size:26px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#1a1200;box-shadow:0 10px 30px rgba(255,140,40,.45)}
+.toast b{display:block;font-size:20px;margin-bottom:8px}.toast p{color:var(--muted);font-size:14px;line-height:1.5;margin-bottom:20px}
+.btns{display:flex;gap:10px}.btns button{flex:1;border:0;border-radius:14px;padding:13px;font:700 13px Inter;cursor:pointer}
+.go{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#1a1200}.later{background:rgba(255,255,255,.12);color:#fff}
+
+/* Pages */
+.page{display:none;min-height:0}#p-social{position:relative}
+.page.on{display:grid;animation:pagein .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes pagein{from{opacity:0;transform:translateX(18px)}}
+.panel{padding:26px 28px;overflow:auto}
+.panel h2{font-size:26px;font-weight:800;letter-spacing:-.5px}
+.panel .sub{color:var(--muted);margin:6px 0 22px;font-size:14px}
+.sec{font-size:12px;letter-spacing:1.6px;color:var(--accent);font-weight:800;margin:22px 0 12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
+.pcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:18px}
+.pcard{padding:16px 18px;border-radius:16px;background:rgba(255,255,255,.06)}.pcard h3{font-size:11px;letter-spacing:1.4px;color:var(--muted);margin-bottom:6px}.pcard .big{font-size:26px}
+.tip{padding:12px 16px;border-radius:14px;margin-bottom:10px;font-size:13.5px;line-height:1.45;background:rgba(255,207,46,.1);border:1px solid rgba(255,207,46,.35)}.tip.bad{background:rgba(255,90,90,.1);border-color:rgba(255,90,90,.4)}
+.ptable{width:100%;border-collapse:collapse;font-size:13px}.ptable th{text-align:left;color:var(--muted);font-weight:700;font-size:11px;letter-spacing:1px;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.1)}
+.ptable td{padding:9px 6px;border-bottom:1px solid rgba(255,255,255,.06)}.ptable .crash{color:#ff7a7a;font-weight:700}
+#pEmpty{color:var(--muted);font-size:14px;padding:20px 0}
+.post{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 4px}.post input{flex:1;min-width:220px;background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:11px 14px;font:500 14px Inter}
+.post select{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:10px;font:600 13px Inter}.post select option{background:#1a1b22}.post .go{border:0;border-radius:12px;padding:0 20px;font:800 14px Inter;cursor:pointer}
+.spics{display:grid;grid-auto-flow:column;grid-auto-columns:168px;gap:10px;overflow-x:auto;overflow-y:hidden;padding:4px 2px 10px;margin:2px 0 10px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.spic{position:relative;aspect-ratio:16/10;border-radius:12px;overflow:hidden;cursor:pointer;border:2px solid transparent;background:rgba(255,255,255,.06);scroll-snap-align:start;outline:none}
+.spic img{width:100%;height:100%;object-fit:cover;display:block}.spic>span{position:absolute;left:0;right:0;bottom:0;padding:16px 8px 6px;font:700 11.5px Inter;text-align:left;background:linear-gradient(transparent,rgba(0,0,0,.85))}
+.spic:hover{border-color:rgba(255,255,255,.35)}.spic.on{border-color:var(--accent)}.spic:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.splay{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);display:none;align-items:center;gap:6px;border:0;border-radius:999px;padding:8px 14px;font:800 12.5px Inter;cursor:pointer;color:#1a1200;background:linear-gradient(90deg,var(--accent),var(--accent-2));box-shadow:0 4px 14px rgba(0,0,0,.5);white-space:nowrap}
+.spic.on .splay{display:inline-flex}.spic.on img{filter:brightness(.75)}
+.glist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}.gcard{padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);display:flex;flex-direction:column;gap:6px}
+.gcard b{font-size:15px}.gcard small{color:var(--muted);font-size:12.5px}.gcard .row2{display:flex;align-items:center;justify-content:space-between;margin-top:6px}.gcard .full{color:var(--muted);font-size:12px}
+#gMine:not(:empty){padding:12px 16px;border-radius:14px;margin-bottom:12px;background:rgba(255,207,46,.1);border:1px solid rgba(255,207,46,.35);font-size:13.5px;color:var(--accent)}
+.games{padding:10px 12px;margin:0 0 10px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+.games .gh{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;letter-spacing:1.4px;font-weight:800;color:var(--accent)}
+.game{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid rgba(255,255,255,.06);font-size:13.5px}.game:first-of-type{border-top:0}
+.game .gi{flex:1;min-width:0}.game small{display:block;color:var(--muted);font-size:12px}
+.gform{display:none;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}.gform.on{display:flex}
+.gform select{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:8px;font:600 13px Inter}
+.gform select option{background:#1a1b22}.mine{color:var(--accent);font-size:12.5px;margin-top:6px}
+.seek{font-size:12.5px;color:var(--muted);padding:6px 4px 10px;line-height:1.5}.seek b{color:var(--accent)}
+.field label{display:block;font-size:12px;font-weight:700;letter-spacing:.6px;color:var(--muted);margin-bottom:7px}
+.select{position:relative}
+.select select,.field input{width:100%;appearance:none;-webkit-appearance:none;font:600 14px Inter;color:#fff;padding:13px 40px 13px 14px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);backdrop-filter:blur(12px);outline:none;transition:.2s}
+.select select:hover,.field input:hover{background:rgba(255,255,255,.11)}
+.select select:focus,.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,207,46,.2)}
+.select::after{content:"";position:absolute;right:16px;top:50%;width:8px;height:8px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:translateY(-70%) rotate(45deg);opacity:.7;pointer-events:none}
+.select option{background:#1a1b22}
+.toggles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.tg{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.08);cursor:pointer;font-weight:600;font-size:14px}
+.tg small{display:block;color:var(--muted);font-weight:500;font-size:12px;margin-top:3px}
+.sw{flex:none;width:46px;height:26px;border-radius:99px;background:rgba(255,255,255,.18);position:relative;transition:.25s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.25s cubic-bezier(.2,1.2,.3,1);box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.tg.on .sw{background:linear-gradient(90deg,var(--accent),var(--accent-2))}.tg.on .sw::after{left:23px}
+.btn{cursor:pointer;font:700 14px Inter;color:#fff;padding:12px 18px;border-radius:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14)}
+.kpresets{display:grid;grid-template-columns:1fr 1fr;gap:12px}.kpre{text-align:left;cursor:pointer;color:#fff;font:inherit;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.06);border:2px solid transparent}.kpre:hover{border-color:rgba(255,255,255,.3)}.kpre b{display:block;font-size:15px}.kpre small{display:block;color:var(--muted);font-size:12.5px;margin-top:4px}.kpre:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.ksec{font-size:12px;letter-spacing:1.6px;color:var(--accent);font-weight:800;margin:20px 0 8px}.khelp{color:var(--muted);font-size:13px;margin:16px 0 4px}.khelp b{color:#fff}
+.krow{display:grid;grid-template-columns:1fr 132px 132px;align-items:center;gap:10px;padding:8px 12px;border-radius:12px}.krow:nth-child(even){background:rgba(255,255,255,.04)}
+.krow small{display:block;color:var(--muted);font-size:12px;margin-top:2px}.kkey{font:700 13px Inter;color:#fff;padding:9px 10px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);cursor:pointer;min-height:38px}
+.kkey:hover{border-color:rgba(255,255,255,.35)}.kkey.empty{color:var(--muted);font-weight:500}.kkey.wait{border-color:var(--accent);color:var(--accent)}.kkey:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.ksens{grid-template-columns:auto 1fr 48px;margin-top:12px;background:rgba(255,255,255,.04)}.ksens input{accent-color:var(--accent)}.knote{color:var(--muted);font-size:13px;margin-left:12px;align-self:center}
+#p-controls.off #kList,#p-controls.off .khelp,#p-controls.off #kSensRow{opacity:.45}
+.btn:hover{background:rgba(255,255,255,.16)}
+.regions{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.region{padding:18px;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);cursor:pointer;transition:.25s}
+.region.on{border-color:var(--accent);background:rgba(255,207,46,.1);box-shadow:0 0 0 3px rgba(255,207,46,.15)}
+.region b{font-size:17px}.region small{display:block;color:var(--muted);margin-top:4px}
+.region .ping{float:right;font-size:12px;font-weight:700;color:#4ade80}
+.pathrow{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;margin-bottom:12px}
+
+.dd{position:relative}
+.dd-btn{width:100%;display:flex;justify-content:space-between;align-items:center;font:600 14px Inter;color:#fff;padding:13px 14px;border-radius:14px;cursor:pointer;
+  border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);backdrop-filter:blur(12px);transition:.2s;text-align:left}
+.dd-btn:hover{background:rgba(255,255,255,.1)}
+.dd.open .dd-btn{border-color:rgba(255,207,46,.6);box-shadow:0 0 0 3px rgba(255,207,46,.15)}
+.dd-btn i{width:8px;height:8px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:translateY(-2px) rotate(45deg);opacity:.6;transition:.25s}
+.dd.open .dd-btn i{transform:translateY(2px) rotate(-135deg)}
+.dd-list{position:absolute;left:0;right:0;top:calc(100% + 8px);z-index:20;padding:6px;border-radius:16px;
+  background:rgba(20,21,27,.97);backdrop-filter:blur(30px) saturate(140%);border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 20px 50px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12);
+  opacity:0;transform:translateY(-6px) scale(.98);pointer-events:none;transition:.18s;max-height:240px;overflow:auto}
+.dd.open .dd-list{opacity:1;transform:none;pointer-events:auto}
+.dd-opt{display:flex;justify-content:space-between;align-items:center;padding:11px 12px;border-radius:11px;font:500 14px Inter;color:rgba(255,255,255,.85);cursor:pointer}
+.dd-opt:hover{background:rgba(255,255,255,.08);color:#fff}
+.dd-opt.sel{color:#fff;font-weight:700}
+.dd-opt.sel::after{content:"";width:6px;height:11px;border-right:2px solid var(--accent);border-bottom:2px solid var(--accent);transform:rotate(45deg) translate(-2px,-2px)}
+
+/* Social */
+#p-social{position:relative}
+#p-social.on{grid-template-columns:290px 1fr;gap:18px}
+.people,.chat{display:flex;flex-direction:column;min-height:0;padding:18px}
+.ptabs,.ctabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.ptab,.ctab{padding:8px 13px;border-radius:999px;font:700 13px Inter;color:var(--muted);cursor:pointer;background:rgba(255,255,255,.05);border:1px solid transparent;display:flex;align-items:center;gap:7px}
+.ptab.on,.ctab.on{color:#fff;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.14)}
+.badge{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:#1a1200;font-size:11px;display:grid;place-items:center}
+.search{width:100%;font:500 14px Inter;color:#fff;padding:11px 13px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);outline:none;margin-bottom:10px}
+.plist{flex:1;overflow:auto;display:flex;flex-direction:column;gap:4px}
+.person{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:13px;cursor:pointer;transition:.15s}
+.person:hover{background:rgba(255,255,255,.06)}
+.pav{position:relative;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;flex:none}
+.pav::after{content:"";position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;border:2px solid #15161c;background:#6b7280}
+.pav.online::after{background:#4ade80}.pav.game::after{background:var(--accent)}
+.pn{flex:1;min-width:0}.pn b{display:block;font-size:14px}.pn small{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.pact{width:30px;height:30px;border-radius:10px;border:0;background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-size:16px}
+.pact:hover{background:rgba(255,255,255,.16)}.pact.ok{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#1a1200}
+.msgs{flex:1;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:6px 4px 10px}
+.msg{display:flex;gap:10px;align-items:flex-start;animation:pagein .3s both}
+.msg .pav{width:32px;height:32px;font-size:13px}.msg .pav::after{display:none}
+.mb{max-width:72%;padding:10px 13px;border-radius:16px 16px 16px 6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.06);font-size:14px;line-height:1.45}
+.mb .who{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:3px;display:flex;gap:8px;align-items:baseline}
+.mb .who span{color:var(--muted);font-weight:500}
+.msg.me{flex-direction:row-reverse}.msg.me .mb{border-radius:16px 16px 6px 16px;background:linear-gradient(135deg,rgba(255,207,46,.22),rgba(255,122,46,.16));border-color:rgba(255,207,46,.25)}
+.msg.me .who{justify-content:flex-end}
+.sys{align-self:center;font-size:12px;color:var(--muted);padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.05)}
+.compose{display:flex;gap:10px;margin-top:6px}
+.compose input{flex:1;font:500 14px Inter;color:#fff;padding:13px 15px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);outline:none}
+.compose input:focus{border-color:rgba(255,207,46,.6);box-shadow:0 0 0 3px rgba(255,207,46,.15)}
+.send{border:0;border-radius:14px;padding:0 20px;font:800 14px Inter;color:#1a1200;cursor:pointer;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+.chathead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.chathead small{color:var(--muted)}
+.menu{position:absolute;z-index:30;padding:6px;border-radius:14px;background:rgba(20,21,27,.97);border:1px solid rgba(255,255,255,.12);box-shadow:0 20px 50px rgba(0,0,0,.5);display:none}
+.menu.on{display:block}.menu div{padding:9px 14px;border-radius:10px;font:500 14px Inter;cursor:pointer}.menu div:hover{background:rgba(255,255,255,.08)}.menu .bad{color:#f87171}
+
+.status{position:relative;margin-top:14px;font-size:13px;color:var(--muted)}.status.bad{color:#f87171}
+.field input[readonly]{opacity:.85;cursor:default}
+.play[disabled]{filter:grayscale(.6);opacity:.7;cursor:default}
+
+/* Own title bar (the Windows one is hidden): drag anywhere on it, glass buttons on the right */
+.win{padding-top:48px!important}
+/* Resizable window: the layout always fits it; a short window scrolls the sidebar instead of cutting the page */
+.win{grid-template-rows:minmax(0,1fr)}
+.side{min-height:0;overflow-y:auto;scrollbar-width:none}
+.side::-webkit-scrollbar{display:none}
+@media (max-height:860px){.side{padding-top:14px;padding-bottom:14px;gap:2px}.logo{padding-bottom:10px}.tag{margin-bottom:10px}.nav{padding:8px 14px}.credits{padding-bottom:6px}}
+.titlebar{position:absolute!important;top:0;left:0;right:0;height:44px;z-index:40!important;display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:0 12px 0 22px}
+.titlebar .ttl{margin-right:auto;font:600 12px Inter;letter-spacing:1.4px;color:rgba(255,255,255,.45);pointer-events:none}
+.tb{width:34px;height:28px;border:0;border-radius:9px;background:transparent;color:rgba(255,255,255,.75);cursor:pointer;display:grid;place-items:center;transition:.15s}
+.tb:hover{background:rgba(255,255,255,.12);color:#fff}
+.tb.x:hover{background:#e5484d;color:#fff}
+.tb svg{width:14px;height:14px}
+</style></head><body>
+<div class="win" id="win">
+  <div class="titlebar" id="titlebar"><span class="ttl">RESTREET LAUNCHER</span>
+    <button class="tb" data-win="min" title="Minimize"><svg viewBox="0 0 14 14"><path d="M2 7h10" stroke="currentColor" stroke-width="1.6"/></svg></button>
+    <button class="tb x" data-win="close" title="Close"><svg viewBox="0 0 14 14"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.6"/></svg></button>
+  </div>
+  <div class="glow"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+  <aside class="side">
+    <div class="logo">Re<b>Street</b></div>
+    <span class="tag" id="ver">V1.5 &middot; ONLINE BETA</span>
+    <div class="nav on" data-p="p-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>Home</div><div class="nav" data-p="p-social"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a3 3 0 0 1-3 3H8l-5 4V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3z"/></svg>Social<span class="badge" id="navBadge" style="margin-left:auto;display:none"></span></div><div class="nav" data-p="p-matches"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 5h-5L8 10z"/></svg>Matches<span class="badge" id="matchBadge" style="margin-left:auto;display:none"></span></div><div class="nav" data-p="p-online"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>Online</div><div class="nav" data-p="p-display"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>Display</div><div class="nav" data-p="p-graphics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="3"/></svg>Graphics</div><div class="nav" data-p="p-perf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 20h18M6 16l4-5 3 3 5-7"/></svg>Performance</div><div class="nav" data-p="p-controls"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="3"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>Controls</div><div class="nav" data-p="p-advanced"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Advanced</div>
+    <div class="spacer"></div>
+    <div class="tg side-tg" data-id="onlineMode" title="Off: the game starts offline, with no server, friends or rooms."><div>Play online</div><div class="sw"></div></div>
+    <div class="credits"><h4>CREDITS</h4><div>Performance &middot; <b>AnDr3zF</b></div><div>PT-BR translation &middot; <b>Eze_.</b></div></div>
+    <div class="me"><div class="av" id="meav">?</div><div><b id="mename">Offline</b><small><span class="dot" id="medot"></span><span id="meserver">Not set up</span></small></div></div>
+  </aside>
+
+  <section class="main page on" id="p-home">
+    <div class="hero glass">
+      <div class="shot"></div>
+      <h1>FIFA Street<br><span>is back online.</span></h1>
+      <p>Division Match, weekly Cups and Friend Matches with real players. Pick up where you left off.</p>
+      <div class="row"><button class="play" data-cmd="play" id="play">PLAY</button><div class="chip glass" id="summary"></div></div>
+      <div class="status" id="status"></div>
+    </div>
+    <div class="cards">
+      <div class="card glass"><h3>ONLINE NOW</h3><div class="big" id="cOnline">&ndash;</div><small id="cOnlineSub">on your server</small></div>
+      <div class="card glass"><h3>SERVER</h3><div class="big" id="cServer">&ndash;</div><small id="cPing">&nbsp;</small></div>
+      <div class="card glass"><h3>GRAPHICS</h3><div class="big" id="cApi">&ndash;</div><small id="cProfile">&nbsp;</small></div>
+      <div class="card glass" id="cPerf" style="display:none"><h3>LAST SESSION</h3><div class="big" id="cFps">&ndash;</div><small id="cFpsSub">&nbsp;</small></div>
+    </div>
+  </section>
+
+
+  <section class="page" id="p-social">
+    <div class="people glass">
+      <div class="ptabs"><div class="ptab on" data-t="t-online">Online <span class="badge" id="bOnline">0</span></div><div class="ptab" data-t="t-friends">Friends</div><div class="ptab" data-t="t-req">Requests <span class="badge" id="bReq" style="display:none"></span></div></div>
+      <form id="addForm" style="display:flex;gap:8px"><input class="search" id="addName" maxlength="15" placeholder="Add a friend by name" autocomplete="off"><button class="pact ok" style="height:42px;width:42px">+</button></form>
+      <div class="plist" id="t-online"></div>
+      <div class="plist" id="t-friends" style="display:none"></div>
+      <div class="plist" id="t-req" style="display:none"></div>
+    </div>
+    <div class="chat glass">
+      <div class="chathead"><div class="ctabs" id="ctabs"></div><small id="chatNote">be nice, chat is moderated</small></div>
+      <div class="msgs" id="msgs"></div>
+      <form class="compose" id="compose"><input id="say" maxlength="300" placeholder="Message" autocomplete="off"><button class="send">Send</button></form>
+    </div>
+    <div class="menu" id="pmenu"><div data-a="dm">Send message</div><div data-a="add">Add friend</div><div data-a="remove" class="bad">Remove friend</div><div data-a="block" class="bad">Block</div></div>
+  </section>
+  <section class="page" id="p-matches"><div class="panel glass">
+    <h2>Matches</h2><p class="sub">Post a match or join one. Keep the game closed: when someone joins, ReStreet opens for both of you straight into the match lobby.</p>
+    <div id="games">
+      <div class="mine" id="gMine"></div>
+      <div class="post" id="gPost"><input id="gTitle" maxlength="32" placeholder="Title (optional), e.g. Chill 5-a-side, no skills spam" autocomplete="off">
+        <select id="gMode"><option value="fives">5-a-side</option><option value="sixes">6-a-side</option><option value="futsal">Futsal</option></select>
+        <input type="hidden" id="gStadium"></div>
+      <div class="spics" id="gPics" role="radiogroup" aria-label="Stadium"></div>
+      <div class="sec">OPEN MATCHES</div>
+      <div class="glist" id="gList"></div>
+      <div class="sec">LOOKING FOR A MATCH IN THE GAME</div>
+      <div class="seek" id="seek"></div>
+    </div>
+  </div></section>
+  <section class="page" id="p-online"><div class="panel glass">
+    <h2>Online</h2><p class="sub">Your online name and the server you play on. Each server has its own players, seasons and friends.</p>
+    <div class="sec">SERVER</div>
+    <div class="regions" id="regions"></div>
+    <div class="sec">ACCOUNT</div>
+    <div class="grid2">
+      <div class="field"><label>ONLINE NAME</label><input id="oname" readonly></div>
+      <div class="field"><label>STATUS</label><input id="ostatus" readonly></div>
+    </div>
+    <p class="hint" style="color:var(--muted);font-size:13px;margin-top:10px">To change your online name, run the online patch again.</p>
+
+  </div></section>
+
+  <section class="page" id="p-display"><div class="panel glass">
+    <h2>Display</h2><p class="sub">Screen, refresh rate and language.</p>
+    <div class="grid2"><div class="field"><label>RESOLUTION</label><div class="dd" data-id="resolution"><button class="dd-btn" type="button"><span></span><i></i></button><div class="dd-list"></div></div></div><div class="field old-only"><label>REFRESH RATE</label><div class="dd" data-id="refresh"><button class="dd-btn" type="button"><span></span><i></i></button><div class="dd-list"></div></div></div><div class="field"><label>DISPLAY MODE</label><div class="dd" data-id="displayMode"><button class="dd-btn" type="button"><span></span><i></i></button><div class="dd-list"></div></div></div><div class="field"><label>MONITOR</label><div class="dd" data-id="monitor"><button class="dd-btn" type="button"><span></span><i></i></button><div class="dd-list"></div></div></div><div class="field"><label>GAME LANGUAGE</label><div class="dd" data-id="language"><button class="dd-btn" type="button"><span></span><i></i></button><div class="dd-list"></div></div></div><div class="field"><label>LAUNCHER LANGUAGE</label><div class="dd" data-id="uiLang"><button class="dd-btn" type="button"><span></span><i></i></button><div class="dd-list"></div></div></div><div class="field deck-only"><label>FRAME RATE LIMIT</label><div class="dd" data-id="fpsLimit"><button class="dd-btn" type="button"><span></span><i></i></button><div class="dd-list"></div></div></div></div>
+    <div class="sec">SYNC</div>
+    <div class="toggles"><div class="tg" data-id="vsync"><div>VSync<small>No tearing, a new frame every refresh</small></div><div class="sw"></div></div><div class="tg old-only" data-id="vrr"><div>VRR / Tearing<small>Direct3D 12 &middot; Adaptive Sync</small></div><div class="sw"></div></div></div>
+  </div></section>
+
+  <section class="page" id="p-graphics"><div class="panel glass">
+    <h2>Graphics</h2><p class="sub">Quality and performance. Weaker PC? Pick the Performance profile.</p>
+    <div class="grid2"><div class="field old-only"><label>PROFILE</label><div class="dd" data-id="profile"><button class="dd-btn" type="button"><span></span><i></i></button><div class="dd-list"></div></div></div><div class="field"><label>GRAPHICS API</label><div class="dd" data-id="api"><button class="dd-btn" type="button"><span></span><i></i></button><div class="dd-list"></div></div></div><div class="field"><label>GPU</label><div class="dd" data-id="gpu"><button class="dd-btn" type="button"><span></span><i></i></button><div class="dd-list"></div></div></div><div class="field"><label>POST-PROCESSING</label><div class="dd" data-id="post"><button class="dd-btn" type="button"><span></span><i></i></button><div class="dd-list"></div></div></div><div class="field"><label>INTERNAL RESOLUTION</label><div class="dd" data-id="internal"><button class="dd-btn" type="button"><span></span><i></i></button><div class="dd-list"></div></div></div><div class="field deck-only"><label>SCALING</label><div class="dd" data-id="scaling"><button class="dd-btn" type="button"><span></span><i></i></button><div class="dd-list"></div></div></div><div class="field deck-only"><label>ASPECT RATIO</label><div class="dd" data-id="aspect"><button class="dd-btn" type="button"><span></span><i></i></button><div class="dd-list"></div></div></div><div class="field deck-only"><label>ANISOTROPIC FILTERING</label><div class="dd" data-id="aniso"><button class="dd-btn" type="button"><span></span><i></i></button><div class="dd-list"></div></div></div><div class="field deck-only"><label>AMBIENT OCCLUSION</label><div class="dd" data-id="occlusion"><button class="dd-btn" type="button"><span></span><i></i></button><div class="dd-list"></div></div></div></div>
+    <div class="sec">ANTI-ALIASING</div>
+    <div class="toggles"><div class="tg" data-id="msaa"><div><span class="old-only">Native 2x MSAA</span><span class="deck-only">Game MSAA (4x in 3D)</span><small>Smoother edges, costs performance</small></div><div class="sw"></div></div></div>
+  </div></section>
+
+  <section class="page" id="p-perf"><div class="panel glass">
+    <h2>Performance</h2><p class="sub">How ReStreet ran on this PC in your last sessions. Matches, replays and menus are measured separately.</p>
+    <div class="pcards"><div class="pcard"><h3>LAST MATCH FPS</h3><div class="big" id="pLast">&ndash;</div></div><div class="pcard"><h3>AVERAGE (10 SESSIONS)</h3><div class="big" id="pAvg">&ndash;</div></div><div class="pcard"><h3>GRAPHICS CARD USED</h3><div class="big" id="pGpu" style="font-size:17px">&ndash;</div></div><div class="pcard"><h3>CRASHES</h3><div class="big" id="pCrash">&ndash;</div></div></div>
+    <div id="pTips"></div>
+    <div class="sec">SESSIONS</div>
+    <div id="pEmpty">Play a session and your results appear here.</div>
+    <table class="ptable" id="pTable"><thead><tr><th>WHEN</th><th>API</th><th>RESOLUTION</th><th>MATCH</th><th>1% LOW</th><th>REPLAYS</th><th>MENUS</th><th></th></tr></thead><tbody></tbody></table>
+    <div class="sec">THIS PC</div><div id="pPc" class="sub"></div>
+  </div></section>
+  <section class="page" id="p-controls"><div class="panel glass">
+    <h2>Controls</h2><p class="sub">Play without a controller. The keyboard works as an Xbox controller, so menus, matches and online all work; a controller still works too.</p>
+    <div class="toggles"><div class="tg" data-id="kbMode" data-ctl="keyboard"><div>Play with keyboard<small>Turn on to use the keys below</small></div><div class="sw"></div></div><div class="tg old-only" data-id="kbMouse" data-ctl="mouseTricks"><div>Mouse for skill moves<small>The mouse moves the right stick</small></div><div class="sw"></div></div></div>
+    <div class="sec">LAYOUT</div>
+    <div class="kpresets"><button type="button" class="kpre" data-preset="mouse"><b>Keyboard + mouse</b><small>Recommended. WASD to move, the mouse does skill moves; left click pass, right click shoot, middle click lob.</small></button><button type="button" class="kpre" data-preset="keyboard"><b>Keyboard only</b><small>WASD to move, J pass, K shoot, L lob, I manual pass, arrows for skill moves.</small></button></div>
+    <p class="khelp">Both: Shift sprint, Space Street Ball Control (hold), Q flair (hold), E juggle. Menus: Enter select, Backspace back, Esc pause.</p>
+    <div class="krow ksens" id="kSensRow"><span>Mouse sensitivity</span><input type="range" id="kSens" min="0.2" max="3" step="0.1" aria-label="Mouse sensitivity"><b id="kSensVal"></b></div>
+    <p class="khelp">Click a key to change it, then press the new key (or a mouse button). Each action can have two keys. <b>Esc</b> cancels, <b>right-click</b> clears a key.</p>
+    <div id="kList"></div>
+    <span class="knote" id="kNote" role="status"></span>
+  </div></section>
+  <section class="page" id="p-advanced"><div class="panel glass">
+    <h2>Advanced</h2><p class="sub">Game files and renderer options for textures, lighting, black screens and stutter.</p>
+    <div class="sec">GAME FILES</div>
+    <div class="pathrow"><div class="field"><label>GAME EXECUTABLE</label><input id="exe" readonly></div><button class="btn" data-cmd="browseExe">Browse</button></div>
+    <div class="pathrow"><div class="field"><label>GAME DATA FOLDER</label><input id="data" readonly></div><button class="btn" data-cmd="browseData">Browse</button></div>
+    <div class="sec old-only">COMPATIBILITY</div>
+    <div class="grid2 old-only" style="margin-bottom:14px"><div class="field"><label>READBACK RESOLVE</label><div class="dd" data-id="readback"><button class="dd-btn" type="button"><span></span><i></i></button><div class="dd-list"></div></div></div></div>
+    <div class="toggles old-only"><div class="tg" data-id="memexport"><div>Memory Export</div><div class="sw"></div></div><div class="tg" data-id="memexportFast"><div>Fast MemExport</div><div class="sw"></div></div><div class="tg" data-id="pageState"><div>Memory Page State</div><div class="sw"></div></div><div class="tg" data-id="occlusion"><div>Occlusion Queries</div><div class="sw"></div></div><div class="tg" data-id="asyncShaders"><div>Async Shaders</div><div class="sw"></div></div><div class="tg" data-id="frameStats"><div>Frame stats log</div><div class="sw"></div></div><div class="tg" data-id="perfShare"><div>Share performance reports</div><div class="sw"></div></div></div>
+    <div class="row" style="margin-top:20px"><button class="btn" data-cmd="logs">Open logs</button><button class="btn" data-cmd="folder">Open game folder</button><button class="btn" data-cmd="shortcut">Desktop shortcut</button></div>
+  </div></section>
+</div>
+<div class="veil gone" id="perfAsk"><div class="toast glass"><div class="ico">&#9889;</div><b>Help make ReStreet faster</b>
+  <p>After each session, send an anonymous performance report: your graphics card, processor, memory, settings and FPS. No name, no account. You can turn it off in Advanced.</p>
+  <div class="btns"><button class="later" id="perfNo">No thanks</button><button class="go" id="perfYes">Share</button></div></div></div>
+<div class="veil gone" id="updAsk"><div class="toast glass"><div class="ico">&#11015;</div><b id="updTitle">Update available</b>
+  <p id="updText">A new version of ReStreet is ready. The launcher downloads it from GitHub, checks it and installs it for you. Your name, server and saves are kept.</p>
+  <div class="upbar" id="updBar"><i></i></div>
+  <div class="btns" id="updBtns"><button class="later" id="updLater">Later</button><button class="go" id="updGo">Update now</button></div></div></div>
+<div class="veil gone" id="roomReady"><div class="toast glass"><div class="ico">&#9917;</div><b id="rrTitle">Game ready!</b>
+  <p id="rrText">Both players are in. Press PLAY: the game opens and takes you to the match by itself. Don't touch anything until the match set-up appears.</p>
+  <div class="btns"><button class="later" id="rrLeave">Leave game</button><button class="go" id="rrPlay">PLAY</button></div></div></div>
+<script>
+// In WebView2 the launcher is chrome.webview; in a browser (Wine/Proton, no WebView2) the same page talks to the
+// launcher over 127.0.0.1: POST msg, long-poll events (see BrowserUi.cs).
+function browserHost() {
+  const base = location.pathname.replace(/[^/]*$/, ''), listeners = [];
+  (async function poll() {
+    for (;;) {
+      try { const r = await fetch(base + 'events', {cache: 'no-store'}); for (const d of await r.json()) listeners.forEach(cb => cb({data: d})); }
+      catch (e) { await new Promise(r => setTimeout(r, 2000)); }
+    }
+  })();
+  document.documentElement.classList.add('browser');
+  return {postMessage: m => fetch(base + 'msg', {method: 'POST', body: JSON.stringify(m)}).catch(() => {}), addEventListener: (t, cb) => listeners.push(cb)};
+}
+const host = (window.chrome && chrome.webview) || (location.protocol === 'http:' ? browserHost() : null);
+const send = m => host && host.postMessage(m);
+const $ = id => document.getElementById(id);
+const esc = t => String(t ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+document.querySelectorAll('.nav').forEach(n => n.onclick = () => {
+  document.querySelectorAll('.nav').forEach(x => x.classList.toggle('on', x === n));
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('on', p.id === n.dataset.p));
+});
+$('titlebar').addEventListener('mousedown', e => { if (e.button === 0 && !e.target.closest('.tb')) send({cmd: e.detail === 2 ? 'maximize' : 'drag'}); });
+document.querySelectorAll('[data-win]').forEach(b => b.onclick = () => send({cmd: b.dataset.win === 'min' ? 'minimize' : 'close'}));
+document.querySelectorAll('[data-cmd]').forEach(b => b.onclick = () => send({cmd: b.dataset.cmd}));
+document.querySelectorAll('.tg').forEach(t => t.onclick = () => { if (t.classList.contains('dis')) return; t.classList.toggle('on');
+  const on = t.classList.contains('on'); send(t.dataset.id === 'perfShare' ? {cmd: 'perfShare', value: on} : t.dataset.ctl ? {cmd: 'controls', value: {[t.dataset.ctl]: on}} : {cmd: 'toggle', id: t.dataset.id, value: on}); });
+const perfAnswer = v => { $('perfAsk').classList.add('gone'); send({cmd: 'perfShare', value: v}); };
+$('perfYes').onclick = () => perfAnswer(true); $('perfNo').onclick = () => perfAnswer(false);
+$('updLater').onclick = () => $('updAsk').classList.add('gone');
+$('updGo').onclick = () => { $('updBtns').style.display = 'none'; $('updBar').style.display = 'block'; $('updText').textContent = 'Downloading the update...'; send({cmd: 'updateGo'}); };
+function renderUpdate(d) {
+  if (d.type === 'update') { $('updTitle').textContent = 'ReStreet ' + d.version + ' is available'; $('updAsk').classList.remove('gone'); }
+  else if (d.type === 'updateProgress') { $('updBar').firstElementChild.style.width = d.percent + '%'; $('updText').textContent = 'Downloading the update... ' + d.percent + '%'; if (d.percent >= 100) $('updText').textContent = 'Checking and installing. The launcher will reopen by itself.'; }
+  else if (d.type === 'updateError') { $('updText').textContent = d.message; $('updBar').style.display = 'none'; $('updBtns').style.display = ''; }
+}
+function renderHistory(d) {
+  const h = d.history || [], f = x => x == null ? '-' : Math.round(x);
+  const sc = (r, k, v = 'fps_avg') => r.scenes && r.scenes[k] ? r.scenes[k][v] : null;
+  const matchOf = r => sc(r, 'gameplay') ?? sc(r, 'menus') ?? sc(r, 'other');
+  $('pEmpty').style.display = h.length ? 'none' : ''; $('pTable').style.display = h.length ? '' : 'none';
+  $('pTable').querySelector('tbody').innerHTML = h.map(r => { const s = r.settings || {}, t = r.time ? new Date(r.time * 1000) : null;
+    return '<tr><td>' + (t ? t.toLocaleDateString() + ' ' + t.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) : '-') + '</td><td>' + esc(s.api) + '</td><td>' + esc(s.resolution) + ' x' + esc(s.internal_scale) +
+      '</td><td>' + f(sc(r, 'gameplay')) + '</td><td>' + f(sc(r, 'gameplay', 'fps_1_low')) + '</td><td>' + f(sc(r, 'replays')) + '</td><td>' + f(sc(r, 'menus')) +
+      '</td><td>' + (r.exit_code ? '<span class="crash">crash</span>' : '') + '</td></tr>'; }).join('');
+  const last = h[0], recent = h.slice(0, 10).map(matchOf).filter(x => x != null);
+  $('pLast').textContent = last ? f(matchOf(last)) : '-';
+  $('pAvg').textContent = recent.length ? f(recent.reduce((a, b) => a + b, 0) / recent.length) : '-';
+  $('pGpu').textContent = last && last.gpu_used ? last.gpu_used : '-';
+  $('pCrash').textContent = h.filter(r => r.exit_code).length + ' / ' + h.length;
+  const tips = [];
+  if (last && last.integrated_gpu) tips.push(['bad', 'The game ran on your <b>integrated graphics</b> while this PC has a faster card. In Graphics, pick the dedicated card, or in Windows Settings > Display > Graphics set FifaStreet to High performance.']);
+  const refresh = last && last.settings ? Number(last.settings.refresh) || 60 : 60, m = last ? sc(last, 'gameplay') ?? matchOf(last) : null;
+  if (m != null && m < refresh * 0.9) tips.push(['', 'Matches ran at ' + f(m) + ' FPS, below your ' + refresh + ' Hz. Try the <b>Performance</b> profile, a lower internal resolution, or the other graphics API.']);
+  if (last && sc(last, 'gameplay', 'stutters_50ms') > 20) tips.push(['', 'Many stutters in matches. Keep <b>Async Shaders</b> on; the first matches on a new PC stutter while shaders are built.']);
+  if (h.slice(0, 5).filter(r => r.exit_code).length >= 2) tips.push(['bad', 'The game closed with an error in several recent sessions. Update your graphics driver, or open the logs in Advanced and send them to us on Discord.']);
+  $('pTips').innerHTML = tips.map(([c, t]) => '<div class="tip ' + c + '">' + t + '</div>').join('');
+  $('pPc').textContent = (d.adapters || []).map(a => a.name + ' (' + a.vram_mb + ' MB)').join(' · ') +
+    (last && last.pc ? ' · ' + (last.pc.cpu || '') + ' · ' + last.pc.threads + ' threads · ' + last.pc.ram_gb + ' GB RAM' : '');
+}
+function renderPerf(d) {
+  const sc = d.report.scenes || {}, main = sc.gameplay || sc.menus || sc.other || sc.replays; if (!main) return;
+  $('cPerf').style.display = ''; $('cFps').textContent = Math.round(main.fps_avg) + ' FPS';
+  $('cFpsSub').textContent = (sc.gameplay ? 'in matches' : 'average') + ' · 1% low ' + Math.round(main.fps_1_low) +
+    (sc.replays ? ' · replays ' + Math.round(sc.replays.fps_avg) : '');
+  if (d.ask) $('perfAsk').classList.remove('gone');
+}
+document.querySelectorAll('.dd').forEach(d => {
+  d.querySelector('.dd-btn').onclick = e => { e.stopPropagation(); const was = d.classList.contains('open');
+    document.querySelectorAll('.dd.open').forEach(x => x.classList.remove('open')); d.classList.toggle('open', !was); };
+});
+addEventListener('click', () => document.querySelectorAll('.dd.open').forEach(x => x.classList.remove('open')));
+
+function fillDD(id, f) {
+  const d = document.querySelector('.dd[data-id="' + id + '"]'); if (!d || !f) return;
+  d.querySelector('.dd-btn span').textContent = f.items[f.index] ?? '';
+  d.style.opacity = f.enabled === false ? .5 : 1; d.style.pointerEvents = f.enabled === false ? 'none' : '';
+  const list = d.querySelector('.dd-list'); list.innerHTML = '';
+  f.items.forEach((t, i) => { const o = document.createElement('div'); o.className = 'dd-opt' + (i === f.index ? ' sel' : ''); o.textContent = t;
+    o.onclick = e => { e.stopPropagation(); d.classList.remove('open'); send({cmd: 'set', id, index: i}); }; list.appendChild(o); });
+}
+
+// ---------- Controls: keyboard as an Xbox controller (runtime keybind_* names, comma separated alternatives) ----------
+const KACTIONS = [
+  ['MOVEMENT (LEFT STICK)', [['lstick_up', 'Move up'], ['lstick_down', 'Move down'], ['lstick_left', 'Move left'], ['lstick_right', 'Move right'], ['lstick_press', 'L3', 'Left stick click']]],
+  ['SKILL MOVES (RIGHT STICK)', [['rstick_up', 'Skill up'], ['rstick_down', 'Skill down'], ['rstick_left', 'Skill left'], ['rstick_right', 'Skill right'], ['rstick_press', 'R3', 'Stand on the ball / neck stall']]],
+  ['BUTTONS', [['a', 'A', 'Pass (tap twice for a one-two)'], ['b', 'B', 'Shoot'], ['x', 'X', 'Lob pass'], ['y', 'Y', 'Manual pass'], ['left_trigger', 'LT', 'Hold: Street Ball Control / jockey'], ['right_trigger', 'RT', 'Sprint / Panna'], ['left_shoulder', 'LB', 'Hold: flair pass or shot'], ['right_shoulder', 'RB', 'Juggle (hold: knees)']]],
+  ['MENUS', [['start', 'Start', 'Pause'], ['back', 'Back'], ['dpad_up', 'D-pad up'], ['dpad_down', 'D-pad down'], ['dpad_left', 'D-pad left'], ['dpad_right', 'D-pad right']]],
+];
+const KLABEL = Object.fromEntries(KACTIONS.flatMap(([, rows]) => rows.map(([id, name]) => [id, name])));
+// The runtime's own overlays use these keys (settings F4, lobby F6, achievements F7, statistics Home, console `).
+const KRESERVED = ['F4', 'F6', 'F7', 'Home', 'Backtick'];
+const KMODS = {ShiftLeft: 'Shift', ShiftRight: 'Shift', ControlLeft: 'Control', ControlRight: 'Control', AltLeft: 'Alt', AltRight: 'Alt'};
+const KCODES = {Space: 'Space', Enter: 'Return', NumpadEnter: 'NumpadEnter', Tab: 'Tab', Backspace: 'Backspace', Delete: 'Delete', Insert: 'Insert', Home: 'Home', End: 'End',
+  PageUp: 'PageUp', PageDown: 'PageDown', ArrowLeft: 'Left', ArrowRight: 'Right', ArrowUp: 'Up', ArrowDown: 'Down', Backquote: 'Backtick', Minus: 'Minus', Equal: 'Plus',
+  Comma: 'Comma', Period: 'Period', Semicolon: 'Semicolon', Slash: 'Slash', Backslash: 'Backslash', BracketLeft: 'LBracket', BracketRight: 'RBracket', Quote: 'Quote',
+  NumpadAdd: 'NumpadPlus', NumpadSubtract: 'NumpadMinus', NumpadMultiply: 'NumpadStar', NumpadDivide: 'NumpadSlash', CapsLock: 'CapsLock', Pause: 'Pause', ScrollLock: 'ScrollLock'};
+const keyName = e => /^Key[A-Z]$/.test(e.code) ? e.code.slice(3) : /^Digit\d$/.test(e.code) ? e.code.slice(5) : /^Numpad\d$/.test(e.code) ? e.code : /^F\d{1,2}$/.test(e.code) ? e.code : KCODES[e.code] || '';
+const KTEXT = {Return: 'Enter', Backtick: '`', Semicolon: ';', Quote: "'", LMB: 'Left mouse', RMB: 'Right mouse', MMB: 'Middle mouse', LBracket: '[', RBracket: ']', Control: 'Ctrl',
+  Comma: ',', Period: '.', Slash: '/', Backslash: '\\', Minus: '-', Plus: '='};
+const keyText = k => k.split('+').map(p => KTEXT[p] || p).join(' + ');
+let kState = null, kWait = null;  // kWait = {id, slot, el}
+const kSlots = id => (kState.keys[id] || '').split(',').map(x => x.trim()).filter(Boolean);
+function kSave(note) { send({cmd: 'controls', value: {keys: kState.keys}}); $('kNote').textContent = note || 'Saved.'; }
+function kBuild() {
+  $('kList').innerHTML = KACTIONS.map(([title, rows]) => '<div class="ksec">' + title + '</div>' + rows.map(([id, name, hint]) =>
+    '<div class="krow"><div>' + esc(name) + (hint ? '<small>' + esc(hint) + '</small>' : '') + '</div>' +
+    [0, 1].map(slot => '<button type="button" class="kkey" data-id="' + id + '" data-slot="' + slot + '"></button>').join('') + '</div>').join('')).join('');
+}
+function kPaint() {
+  document.querySelectorAll('.kkey').forEach(b => {
+    const k = kSlots(b.dataset.id)[b.dataset.slot], waiting = kWait && kWait.el === b;
+    b.textContent = waiting ? 'Press a key...' : k ? keyText(k) : 'none';
+    b.classList.toggle('empty', !k && !waiting); b.classList.toggle('wait', !!waiting);
+    b.setAttribute('aria-label', KLABEL[b.dataset.id] + ' key ' + (+b.dataset.slot + 1) + ': ' + (k ? keyText(k) : 'none'));
+  });
+}
+function renderControls(c) {
+  if (kWait) return;  // the player is choosing a key: keep the page as it is
+  const first = !kState;
+  kState = JSON.parse(JSON.stringify(c));
+  if (first) kBuild();
+  $('p-controls').classList.toggle('off', !kState.keyboard);
+  $('kSens').value = kState.sensitivity; $('kSensVal').textContent = (+kState.sensitivity).toFixed(1);
+  $('kSensRow').style.display = kState.mouseTricks ? '' : 'none';
+  document.querySelector('.tg[data-id="kbMode"]').classList.toggle('on', !!kState.keyboard);
+  document.querySelector('.tg[data-id="kbMouse"]').classList.toggle('on', !!kState.mouseTricks);
+  kPaint();
+}
+function kSet(id, slot, key) {
+  let note = 'Saved.';
+  if (key) for (const other of Object.keys(kState.keys)) {  // a key does one thing: take it off any other action
+    const list = kSlots(other), at = list.indexOf(key);
+    if (at >= 0 && !(other === id && at === slot)) { list.splice(at, 1); kState.keys[other] = list.join(','); if (other !== id) note = keyText(key) + ' moved here from ' + KLABEL[other] + '.'; }
+  }
+  const list = kSlots(id);
+  if (key) list[Math.min(slot, list.length)] = key; else list.splice(slot, 1);
+  kState.keys[id] = list.filter(Boolean).join(',');
+  kWait = null; kPaint(); kSave(note);
+}
+function kCapture(name, e) {
+  e.preventDefault(); e.stopPropagation();
+  if (!name) { $('kNote').textContent = 'That key cannot be used.'; return; }
+  if (KRESERVED.includes(name)) { $('kNote').textContent = keyText(name) + ' opens a ReStreet menu in the game. Pick another key.'; return; }
+  kSet(kWait.id, +kWait.slot, name);
+}
+$('kList').addEventListener('click', e => {
+  const b = e.target.closest('.kkey'); if (!b || kWait) return;
+  kWait = {id: b.dataset.id, slot: b.dataset.slot, el: b}; $('kNote').textContent = ''; kPaint();
+});
+$('kList').addEventListener('contextmenu', e => {
+  const b = e.target.closest('.kkey'); if (!b) return; e.preventDefault(); kWait = null;
+  if (kSlots(b.dataset.id)[b.dataset.slot]) kSet(b.dataset.id, +b.dataset.slot, ''); else kPaint();
+});
+document.addEventListener('keydown', e => {
+  if (!kWait) return;
+  if (e.code === 'Escape') { e.preventDefault(); kWait = null; kPaint(); $('kNote').textContent = 'Cancelled.'; return; }
+  if (KMODS[e.code]) return kCapture(KMODS[e.code], e);
+  const base = keyName(e);
+  kCapture(base, e);  // Shift / Ctrl / Alt are keys of their own (the runtime lets them be held while moving)
+}, true);
+// Mouse buttons can be keys too; the click that started the wait does not count.
+document.addEventListener('mousedown', e => { if (!kWait || (e.target === kWait.el && e.button === 0)) return; kCapture(['LMB', 'MMB', 'RMB'][e.button] || '', e); }, true);
+$('kSens').oninput = () => { kState.sensitivity = +$('kSens').value; $('kSensVal').textContent = kState.sensitivity.toFixed(1); };
+$('kSens').onchange = () => send({cmd: 'controls', value: {sensitivity: kState.sensitivity}});
+document.querySelectorAll('.kpre').forEach(b => b.onclick = () => {
+  kWait = null; send({cmd: 'controls', value: {preset: b.dataset.preset, keyboard: true}});
+  $('kNote').textContent = b.querySelector('b').textContent + ' keys set.';
+});
+function render(s) {
+  if (s.controls) renderControls(s.controls);
+  for (const [id, f] of Object.entries(s.fields || {})) fillDD(id, f);
+  for (const [id, t] of Object.entries(s.toggles || {})) { const el = document.querySelector('.tg[data-id="' + id + '"]'); if (!el) continue;
+    el.classList.toggle('on', !!t.on); el.classList.toggle('dis', t.enabled === false); el.style.opacity = t.enabled === false ? .5 : 1; }
+  $('exe').value = s.exe || ''; $('data').value = s.data || '';
+  $('summary').textContent = s.summary || ''; $('status').textContent = s.status || ''; $('status').classList.toggle('bad', s.statusOk === false);
+  gameIsRunning = !!s.running; document.body.classList.toggle('deck', !!s.deck);
+  $('play').disabled = !!s.running; $('play').textContent = s.running ? 'PLAYING' : 'PLAY';
+  $('cApi').textContent = s.api || '–'; $('cProfile').textContent = s.profile || '';
+  if (s.version) $('ver').textContent = s.version;
+  const o = s.online;
+  if (o) {
+    $('mename').textContent = o.name; $('meav').textContent = (o.name || '?')[0].toUpperCase(); $('oname').value = o.name;
+    const cur = (o.servers || []).find(x => x.address === o.server);
+    $('meserver').textContent = (cur ? cur.name : o.server) + ' server'; $('cServer').textContent = cur ? cur.name : o.server;
+    $('ostatus').value = o.status || '';
+    $('regions').innerHTML = (o.servers || []).map(x => '<div class="region' + (x.address === o.server ? ' on' : '') + '" data-a="' + esc(x.address) + '">' +
+      '<span class="ping">' + (x.ping >= 0 ? '&#9679; ' + x.ping + ' ms' : 'offline') + '</span><b>' + esc(x.name) + '</b><small>' +
+      (x.online >= 0 ? x.online + ' players online' : '&nbsp;') + '</small></div>').join('');
+    document.querySelectorAll('.region').forEach(r => r.onclick = () => send({cmd: 'server', address: r.dataset.a}));
+    if (cur) { $('cOnline').textContent = cur.online >= 0 ? cur.online : '–'; $('cPing').textContent = cur.ping >= 0 ? cur.ping + ' ms ping' : 'server offline'; }
+  } else {
+    $('mename').textContent = 'Offline'; $('meserver').textContent = 'Online patch not installed'; $('medot').style.background = '#6b7280';
+  }
+}
+
+// ---------- Social: players, friends, requests, server chat and private chats (data comes from the launcher) ----------
+let social = {server: '', me: '', players: [], friends: [], requests: [], messages: {}, convos: {}};
+let channel = 'general', openTabs = ['general'], lastId = {}, seen = JSON.parse(localStorage.getItem('rs_seen') || '{}');
+const COL = ['#e0663a', '#5b6bd6', '#b0457a', '#3a9e7a', '#c58a2a', '#6d5bd0', '#2f8fb5'];
+const avatar = (n, st) => '<div class="pav ' + (st || '') + '" style="background:' + COL[[...n].reduce((a, c) => a + c.charCodeAt(0), 0) % COL.length] + '">' + esc((n || '?')[0].toUpperCase()) + '</div>';
+const socialOpen = () => $('p-social').classList.contains('on') || $('p-matches').classList.contains('on');
+function pollSocial() { send({cmd: 'social', channel, since: lastId[channel] || 0}); }
+setInterval(() => { if (socialOpen()) pollSocial(); else send({cmd: 'social', channel: '', since: 0}); }, socialOpen() ? 3000 : 3000);
+// Messages that arrived while the page was hidden could not scroll it: open Social at the newest one.
+document.querySelector('[data-p=p-social]').addEventListener('click', () => { $('msgs').scrollTop = $('msgs').scrollHeight; setTimeout(pollSocial, 50); });
+document.querySelector('[data-p=p-matches]').addEventListener('click', () => setTimeout(pollSocial, 50));
+document.querySelectorAll('.ptab').forEach(t => t.onclick = () => { document.querySelectorAll('.ptab').forEach(x => x.classList.toggle('on', x === t));
+  document.querySelectorAll('.plist').forEach(l => l.style.display = l.id === t.dataset.t ? 'flex' : 'none'); });
+$('addForm').onsubmit = e => { e.preventDefault(); const n = $('addName').value.trim(); if (n) { send({cmd: 'friend', action: 'add', other: n}); $('addName').value = ''; } };
+$('compose').onsubmit = e => { e.preventDefault(); const v = $('say').value.trim(); if (!v) return; send({cmd: 'chatSend', channel, text: v}); $('say').value = ''; };
+
+function person(name, note, st, actions) {
+  return '<div class="person" data-n="' + esc(name) + '">' + avatar(name, st) + '<div class="pn"><b>' + esc(name) + '</b><small>' + esc(note) + '</small></div>' + actions + '</div>';
+}
+const STADIUMS = {1047: 'Venice Canal', 1000: 'Tokyo Futsal Stadium', 1001: 'Shanghai Rooftop', 1005: 'Dubai', 1046: 'Paris: Notre Dame', 1048: 'Plaça de Catalunya', 1049: 'London',
+  1051: 'Amsterdam Stadium', 1054: 'Rio Stadium', 1055: 'New York Stadium', 1040: 'The Dome', 1034: 'The Hangar', 1022: 'Goals Centre', 1028: 'Futsal Centre', 1010: 'Underpass 1', 1016: 'Underpass 2', 1068: 'Basketball Court'};
+const MODE = {fives: '5-a-side', sixes: '6-a-side', futsal: 'Futsal'};
+// Stadium strip: photos made from the player's own game files on the first PLAY (a tile without one shows the name).
+// Picking a stadium shows its Post match button right on the photo.
+const postMatch = () => { send({cmd: 'room', action: 'create', title: $('gTitle').value, mode: $('gMode').value, stadium: Number($('gStadium').value), channel}); $('gTitle').value = ''; };
+const pickStadium = id => { $('gStadium').value = id; document.querySelectorAll('.spic').forEach(t => { const on = t.dataset.id === String(id); t.classList.toggle('on', on); t.setAttribute('aria-checked', on); t.tabIndex = on ? 0 : -1; }); };
+$('gPics').innerHTML = Object.entries(STADIUMS).map(([id, n]) => '<div class="spic" role="radio" data-id="' + id + '" title="' + esc(n) + '"><img alt="" loading="lazy" src="https://restreet.thumbs/' + id + '.png" onerror="this.remove()"><span>' + esc(n) + '</span><button type="button" class="splay">&#9654; Post match</button></div>').join('');
+$('gPics').onclick = e => { if (e.target.closest('.splay')) return postMatch(); const t = e.target.closest('.spic'); if (t) pickStadium(t.dataset.id); };
+$('gPics').onkeydown = e => {
+  const tiles = [...document.querySelectorAll('.spic')], i = tiles.findIndex(t => t.classList.contains('on'));
+  const step = {ArrowRight: 1, ArrowLeft: -1}[e.key];
+  if (step) { e.preventDefault(); const t = tiles[Math.max(0, Math.min(tiles.length - 1, i + step))]; pickStadium(t.dataset.id); t.focus(); t.scrollIntoView({block: 'nearest', inline: 'nearest'}); }
+  else if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('spic')) { e.preventDefault(); postMatch(); }
+};
+// The mouse wheel scrolls the strip sideways.
+$('gPics').addEventListener('wheel', e => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { e.preventDefault(); $('gPics').scrollLeft += e.deltaY; } }, {passive: false});
+pickStadium(1047);  // Venice Canal, the server's default
+// The names the game itself shows (names.json, written with the pictures) replace the built-in English list.
+fetch('https://restreet.thumbs/names.json').then(r => r.ok ? r.json() : {}).then(names => {
+  for (const id of Object.keys(STADIUMS)) if (names[id]) STADIUMS[id] = names[id];
+  document.querySelectorAll('.spic').forEach(t => { t.title = STADIUMS[t.dataset.id]; t.querySelector('span').textContent = STADIUMS[t.dataset.id]; });
+}).catch(() => {});
+// One click handler on the panel: the list below is rebuilt by the 3 s refresh, the panel itself never is.
+$('games').addEventListener('click', e => {
+  const j = e.target.closest('[data-join]'); if (j) { j.disabled = true; send({cmd: 'room', action: 'join', room: Number(j.dataset.join), channel}); }
+  if (e.target.closest('#gLeave')) send({cmd: 'room', action: 'leave', channel});
+});
+let gamesHtml = '', readyShown = 0, gameIsRunning = false;
+$('rrPlay').onclick = () => { $('roomReady').classList.add('gone'); send({cmd: 'play'}); };
+$('rrLeave').onclick = () => { $('roomReady').classList.add('gone'); send({cmd: 'room', action: 'leave', channel}); };
+// Both games go to the friend match set-up by themselves; the launcher shows the game once both are in the lobby.
+function roomSteps(room, me) {
+  return (gameIsRunning ? 'Your game is restarting so it can open the match by itself. ' : '') +
+    'ReStreet is opening straight into your ' + (MODE[room.mode] || room.mode) + ' match lobby.';
+}
+function renderGames(d) {
+  const me = (d.me || '').toLowerCase(), mine = d.myRoom;
+  const rooms = (d.rooms || []).filter(r => !mine || r.id !== mine.id);
+  const listHtml = rooms.map(r => '<div class="gcard"><b>' + esc(r.name) + '</b><small>by ' + esc(r.host) + ' · ' + esc(MODE[r.mode] || r.mode) + ' · ' + esc(r.stadium_name) + '</small>' +
+    '<div class="row2"><small>' + r.players.length + '/' + r.seats + ' players</small>' +
+    (r.players.length < r.seats && !mine ? '<button class="pact ok" data-join="' + r.id + '" style="width:auto;padding:0 16px;height:34px">Join</button>' : '<span class="full">' + (r.players.length >= r.seats ? 'Full' : '') + '</span>') + '</div></div>').join('') ||
+    '<div class="seek">No open matches right now. Post one and anyone on your server can join.</div>';
+  const mineHtml = mine ? (mine.players.length < mine.seats
+      ? 'Your ' + esc(MODE[mine.mode] || mine.mode) + ' game at ' + esc(mine.stadium_name) + ' is open, waiting for a player... '
+      : 'Game ready with ' + esc(mine.players.filter(p => p.toLowerCase() !== me).join(', ')) + '! ' + esc(roomSteps(mine, me)) + ' ') +
+      '<button class="pact" id="gLeave" style="width:auto;padding:0 12px;height:28px">Leave</button>' : '';
+  // The room just filled up: tell both players, once per room, wherever they are in the launcher.
+  if (mine && mine.players.length >= mine.seats && readyShown !== mine.id) {
+    readyShown = mine.id;
+    $('rrTitle').textContent = 'Loading your match with ' + mine.players.filter(p => p.toLowerCase() !== me).join(', ') + '...';
+    $('rrPlay').style.display = 'none';  // the launcher starts the game by itself
+    $('rrText').textContent = roomSteps(mine, me);
+    $('roomReady').classList.remove('gone');
+  }
+  if (!mine || mine.players.length < mine.seats || mine.joined) { $('roomReady').classList.add('gone'); if (!mine) readyShown = 0; }
+  if (listHtml + mineHtml !== gamesHtml) { gamesHtml = listHtml + mineHtml; $('gList').innerHTML = listHtml; $('gMine').innerHTML = mineHtml; }
+  $('gPost').style.display = mine ? 'none' : '';
+  $('gPics').style.display = mine ? 'none' : '';
+  const open = rooms.filter(r => r.players.length < r.seats).length;
+  $('matchBadge').style.display = open && !mine ? '' : 'none'; $('matchBadge').textContent = open;
+  const sm = Object.entries(d.searchingModes || {});
+  $('seek').innerHTML = sm.length ? sm.map(([m, n]) => '<b>' + n + '</b> ' + esc(m)).join(' · ') + '<br>Search the same mode in the game (Xbox LIVE) to be paired with them.' : 'Nobody is searching in the game right now.';
+}
+function renderSocial(d) {
+  social = Object.assign(social, d);
+  if (d.rooms !== undefined || d.myRoom !== undefined) renderGames(d);
+  const friendNames = new Set((d.friends || []).map(f => f.name.toLowerCase()));
+  const pendingNames = new Set((d.pending || []).map(n => n.toLowerCase()));
+  const sentBtn = '<button class="pact" disabled title="Request sent">&#10003;</button>';
+  $('bOnline').textContent = (d.players || []).length;
+  $('t-online').innerHTML = (d.players || []).map(p => person(p.name, p.note, p.state === 'in_game' ? 'game' : 'online',
+    p.name.toLowerCase() === (d.me || '').toLowerCase() ? '' : friendNames.has(p.name.toLowerCase()) ? '<button class="pact" data-dm="' + esc(p.name) + '">&#9993;</button>' : pendingNames.has(p.name.toLowerCase()) ? sentBtn : '<button class="pact" data-add="' + esc(p.name) + '">+</button>')).join('') || '<div class="sys">Nobody online</div>';
+  $('t-friends').innerHTML = (d.friends || []).map(f => person(f.name, f.online ? 'Online' : 'Offline', f.online ? 'online' : '', '<button class="pact" data-dm="' + esc(f.name) + '">&#9993;</button>')).join('') || '<div class="sys">Add friends from the Online list</div>';
+  const req = d.requests || [];
+  $('bReq').style.display = req.length ? '' : 'none'; $('bReq').textContent = req.length;
+  $('t-req').innerHTML = req.map(n => person(n, 'Wants to be your friend', 'online', '<button class="pact ok" data-acc="' + esc(n) + '">&#10003;</button><button class="pact" data-dec="' + esc(n) + '">&#10005;</button>')).join('') +
+    (d.pending || []).map(n => person(n, 'Request sent', '', '')).join('') || '<div class="sys">No requests</div>';
+  document.querySelectorAll('[data-add]').forEach(b => b.onclick = () => { b.outerHTML = sentBtn; send({cmd: 'friend', action: 'add', other: b.dataset.add}); });
+  document.querySelectorAll('[data-acc]').forEach(b => b.onclick = () => send({cmd: 'friend', action: 'add', other: b.dataset.acc}));
+  document.querySelectorAll('[data-dec]').forEach(b => b.onclick = () => send({cmd: 'friend', action: 'decline', other: b.dataset.dec}));
+  document.querySelectorAll('[data-dm]').forEach(b => b.onclick = () => openChat(b.dataset.dm));
+  document.querySelectorAll('.person').forEach(p => p.oncontextmenu = e => showMenu(e, p.dataset.n, friendNames.has(p.dataset.n.toLowerCase())));
+  // messages for the open channel
+  if (d.channel !== undefined && d.channel === channel && d.messages) {
+    const box = $('msgs'); let added = 0;
+    for (const m of d.messages) {
+      if (m.id <= (lastId[channel] || 0)) continue;
+      added++;
+      lastId[channel] = m.id;
+      const mine = m.from.toLowerCase() === (d.me || '').toLowerCase();
+      const el = document.createElement('div'); el.className = 'msg' + (mine ? ' me' : '');
+      el.innerHTML = avatar(m.from) + '<div class="mb"><div class="who">' + esc(m.from) + '<span>' + new Date(m.t * 1000).toTimeString().slice(0, 5) + '</span></div></div>';
+      el.querySelector('.mb').append(document.createTextNode(m.text));
+      if (!mine) el.oncontextmenu = e => showMenu(e, m.from, friendNames.has(m.from.toLowerCase()), m.id);
+      box.append(el);
+    }
+    if (added) box.scrollTop = box.scrollHeight;  // always show the newest messages
+    seen[channel] = lastId[channel] || 0; localStorage.setItem('rs_seen', JSON.stringify(seen));
+  }
+  if (d.error) { $('chatNote').textContent = d.error; $('chatNote').style.color = '#f87171'; setTimeout(() => { $('chatNote').textContent = 'be nice, chat is moderated'; $('chatNote').style.color = ''; }, 5000); }
+  if (d.chatOff) { $('chatNote').textContent = 'Chat is not available on this server yet'; }
+  // unread private chats
+  let unread = 0;
+  for (const [name, id] of Object.entries(d.convos || {})) { if (id > (seen[name] || 0) && name !== channel) { unread++; if (!openTabs.includes(name)) openTabs.push(name); } }
+  renderTabs(d.convos || {});
+  const total = unread + req.length; $('navBadge').style.display = total ? '' : 'none'; $('navBadge').textContent = total;
+}
+function renderTabs(convos) {
+  $('ctabs').innerHTML = openTabs.map(t => '<div class="ctab' + (t === channel ? ' on' : '') + '" data-c="' + esc(t) + '">' + (t === 'general' ? '# ' + esc(social.server || 'Server') : esc(t)) +
+    ((convos[t] || 0) > (seen[t] || 0) && t !== channel ? ' <span class="badge">&bull;</span>' : '') + '</div>').join('');
+  document.querySelectorAll('.ctab').forEach(c => c.onclick = () => openChat(c.dataset.c));
+  $('say').placeholder = 'Message ' + (channel === 'general' ? '#' + (social.server || 'Server') : channel);
+}
+function openChat(name) {
+  if (!openTabs.includes(name)) openTabs.push(name);
+  channel = name; $('msgs').innerHTML = ''; lastId[channel] = 0; renderTabs(social.convos || {}); pollSocial();
+}
+const pm = $('pmenu'); let menuFor = null, menuMsg = null;
+function showMenu(e, name, isFriend, msgId) {
+  e.preventDefault(); if (name.toLowerCase() === (social.me || '').toLowerCase()) return;
+  menuFor = name; menuMsg = msgId || null;
+  pm.querySelector('[data-a=dm]').style.display = isFriend ? '' : 'none';
+  pm.querySelector('[data-a=add]').style.display = isFriend ? 'none' : '';
+  pm.querySelector('[data-a=remove]').style.display = isFriend ? '' : 'none';
+  let rep = pm.querySelector('[data-a=report]'); if (rep) rep.remove();
+  if (menuMsg) { rep = document.createElement('div'); rep.dataset.a = 'report'; rep.className = 'bad'; rep.textContent = 'Report message'; pm.append(rep); }
+  const r = $('p-social').getBoundingClientRect(); pm.style.left = (e.clientX - r.left) + 'px'; pm.style.top = (e.clientY - r.top) + 'px'; pm.classList.add('on');
+}
+pm.onclick = e => { const a = e.target.dataset.a; if (!a || !menuFor) return;
+  if (a === 'dm') openChat(menuFor);
+  else if (a === 'add' || a === 'remove') send({cmd: 'friend', action: a, other: menuFor});
+  else if (a === 'block') { send({cmd: 'chatAction', action: 'block', other: menuFor}); $('msgs').innerHTML = ''; lastId[channel] = 0; }
+  else if (a === 'report') send({cmd: 'chatAction', action: 'report', id: menuMsg});
+  pm.classList.remove('on'); };
+addEventListener('click', () => pm.classList.remove('on'));
+
+if (host) { host.addEventListener('message', e => !e.data ? 0 : e.data.type === 'social' ? renderSocial(e.data) : e.data.type === 'perf' ? renderPerf(e.data) : e.data.type === 'perfHistory' ? renderHistory(e.data) : String(e.data.type).startsWith('update') ? renderUpdate(e.data) : render(e.data)); send({cmd: 'state'}); }
+addEventListener('mousemove', e => { for (const g of document.querySelectorAll('.glass')) { const r = g.getBoundingClientRect(); g.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%'); } });
+</script>
+<script src="lang.js"></script></body></html>

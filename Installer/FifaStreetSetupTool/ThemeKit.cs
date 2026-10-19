@@ -56,8 +56,9 @@ internal static class StreetTheme
     public static readonly Color YellowDark = Color.FromArgb(22, 19, 10);
     public static readonly Color Ink = Color.FromArgb(242, 242, 238);
     public static readonly Color Muted = Color.FromArgb(176, 178, 178);
-    public static readonly Color Field = Color.FromArgb(24, 27, 31);
-    public static readonly Color PanelFlat = Color.FromArgb(29, 30, 32);
+    public static readonly Color Field = Color.FromArgb(14, 16, 19);
+    public static readonly Color PanelFlat = Color.FromArgb(24, 26, 30);
+    public static readonly Color Hairline = Color.FromArgb(30, 255, 255, 255);
 
     public const int DesignWidth = 930;
 
@@ -99,6 +100,14 @@ internal static class StreetTheme
     public static PointF[] Slant(RectangleF r, float cut) =>
         new[] { new PointF(r.X, r.Y), new PointF(r.Right, r.Y), new PointF(r.Right - cut, r.Bottom), new PointF(r.X, r.Bottom) };
 
+    // Wine/Proton's GDI+ lacks some brushes (path gradient focus scales, texture brushes): a missing effect is skipped
+    // instead of failing the whole paint, which WinForms shows as a red cross on every control.
+    public static void Optional(Action effect)
+    {
+        try { effect(); }
+        catch (Exception ex) when (ex is NotImplementedException or ArgumentException or ExternalException or OutOfMemoryException or InvalidOperationException) { }
+    }
+
     public static Bitmap RenderBackdrop(Size size, float designWidth, float designHeight)
     {
         float s = size.Width / designWidth;
@@ -109,17 +118,18 @@ internal static class StreetTheme
         g.ScaleTransform(s, s);
         float w = designWidth, h = designHeight;
 
-        using (var grain = new Bitmap(128, 128, PixelFormat.Format32bppPArgb))
+        Optional(() =>
         {
+            using var grain = new Bitmap(128, 128, PixelFormat.Format32bppPArgb);
             var rnd = new Random(7);
             for (int y = 0; y < 128; y++)
                 for (int x = 0; x < 128; x++)
-                    grain.SetPixel(x, y, Color.FromArgb(rnd.Next(0, 22), 255, 255, 255));
+                    grain.SetPixel(x, y, Color.FromArgb(rnd.Next(0, 14), 255, 255, 255));
             using var brush = new TextureBrush(grain, WrapMode.Tile);
             g.FillRectangle(brush, 0, 0, w, h + 400);
-        }
+        });
 
-        using (var fence = new Pen(Color.FromArgb(15, 255, 255, 255), 1f))
+        using (var fence = new Pen(Color.FromArgb(7, 255, 255, 255), 1f))
         {
             for (float i = -h; i < w + h; i += 16)
             {
@@ -128,22 +138,37 @@ internal static class StreetTheme
             }
         }
 
-        using (var light = new GraphicsPath())
+        Optional(() =>
         {
+            using var light = new GraphicsPath();
             light.AddEllipse(w * 0.2f, -h * 1.1f, w * 1.1f, h * 1.9f);
             using var brush = new PathGradientBrush(light)
             {
-                CenterColor = Color.FromArgb(54, 255, 244, 214),
+                CenterColor = Color.FromArgb(44, 255, 244, 214),
                 SurroundColors = new[] { Color.FromArgb(0, 255, 244, 214) },
                 CenterPoint = new PointF(w * 0.78f, 0)
             };
             g.FillPath(brush, light);
-        }
+        });
 
         // Court markings: a centre circle and the halfway line, kept away from the text columns.
         using var line = new Pen(Color.FromArgb(40, 255, 255, 255), 3f);
         g.DrawEllipse(line, w * 0.24f - h * 0.5f, h * 1.1f - h * 0.5f, h, h);
         g.DrawLine(line, -10, h * 0.76f, w + 10, h * 0.76f);
+
+        // Vignette: darker edges keep the eye on the content.
+        Optional(() =>
+        {
+            using var edge = new GraphicsPath();
+            edge.AddEllipse(-w * 0.25f, -h * 0.35f, w * 1.5f, h * 1.7f);
+            using var brush = new PathGradientBrush(edge)
+            {
+                CenterColor = Color.FromArgb(0, 0, 0, 0),
+                SurroundColors = new[] { Color.FromArgb(150, 0, 0, 0) },
+                FocusScales = new PointF(0.55f, 0.5f)
+            };
+            g.FillRectangle(brush, -10, -10, w + 20, h + 20);
+        });
         return bmp;
     }
 
@@ -173,16 +198,35 @@ internal static class StreetTheme
     {
         using var path = Round(rect, radius);
         var state = g.Save();
-        g.SetClip(path, CombineMode.Intersect);
-        var source = new RectangleF(rect.X * scale, rect.Y * scale, rect.Width * scale, rect.Height * scale);
-        g.DrawImage(blurred, rect, source, GraphicsUnit.Pixel);
-        using (var veil = new SolidBrush(Color.FromArgb(34, 236, 240, 245))) g.FillPath(veil, path);
-        using (var sheen = new LinearGradientBrush(new RectangleF(rect.X, rect.Y, rect.Width, 120), Color.FromArgb(44, 255, 255, 255), Color.FromArgb(0, 255, 255, 255), 90f))
-            g.FillRectangle(sheen, rect.X, rect.Y, rect.Width, 120);
+        Optional(() =>
+        {
+            g.SetClip(path, CombineMode.Intersect);
+            var source = new RectangleF(rect.X * scale, rect.Y * scale, rect.Width * scale, rect.Height * scale);
+            g.DrawImage(blurred, rect, source, GraphicsUnit.Pixel);
+        });
+        using (var smoke = new SolidBrush(Color.FromArgb(214, 20, 22, 26))) g.FillPath(smoke, path);
+        Optional(() =>
+        {
+            using var sheen = new LinearGradientBrush(new RectangleF(rect.X, rect.Y, rect.Width, 96), Color.FromArgb(14, 255, 255, 255), Color.FromArgb(0, 255, 255, 255), 90f);
+            g.FillRectangle(sheen, rect.X, rect.Y, rect.Width, 96);
+        });
         g.Restore(state);
-        using (var edge = new Pen(Color.FromArgb(58, 255, 255, 255), 1f)) g.DrawPath(edge, path);
-        using (var top = new Pen(Color.FromArgb(120, 255, 255, 255), 1f))
+        using (var edge = new Pen(Color.FromArgb(34, 255, 255, 255), 1f)) g.DrawPath(edge, path);
+        using (var top = new Pen(Color.FromArgb(56, 255, 255, 255), 1f))
             g.DrawLine(top, rect.X + radius, rect.Y + 0.5f, rect.Right - radius, rect.Y + 0.5f);
+    }
+
+    // Section title on a panel: a short yellow tick, the title, and a hairline to `right`. Design coordinates.
+    public static void DrawSection(Graphics g, string title, float x, float y, float right)
+    {
+        using (var tick = new SolidBrush(Yellow)) g.FillRectangle(tick, x, y + 2, 3, 12);
+        using var font = new Font(CondensedFamily, 13, FontStyle.Bold, GraphicsUnit.Pixel);
+        using var ink = new SolidBrush(Ink);
+        DrawSpaced(g, title, font, ink, new PointF(x + 11, y), 1.6f);
+        float end = x + 11;
+        foreach (char c in title) end += g.MeasureString(c.ToString(), font, PointF.Empty, StringFormat.GenericTypographic).Width + 1.6f + (c == ' ' ? font.Size * 0.15f : 0);
+        using var line = new Pen(Hairline, 1f);
+        g.DrawLine(line, end + 10, y + 8.5f, right, y + 8.5f);
     }
 
     // Wordmark drawn as a path so it can be sheared like the game's lettering. The ink's left edge
@@ -342,11 +386,11 @@ internal sealed class SlantButton : Button
             }
             case SlantKind.Glass:
             {
-                int alpha = !enabled ? 18 : down ? 70 : Active ? 62 : hot ? 56 : 36;
+                int alpha = !enabled ? 8 : down ? 40 : Active ? 26 : hot ? 30 : 16;
                 using var brush = new SolidBrush(Color.FromArgb(alpha, 255, 255, 255));
-                using var path = StreetTheme.Round(rect, 8 * k);
+                using var path = StreetTheme.Round(rect, 6 * k);
                 g.FillPath(brush, path);
-                using var pen = new Pen(Active ? StreetTheme.Yellow : Color.FromArgb(enabled ? 70 : 30, 255, 255, 255));
+                using var pen = new Pen(Active ? StreetTheme.Yellow : Color.FromArgb(!enabled ? 20 : hot ? 80 : 44, 255, 255, 255));
                 g.DrawPath(pen, path);
                 text = !enabled ? StreetTheme.Muted : Active ? StreetTheme.Yellow : StreetTheme.Ink;
                 break;
@@ -357,8 +401,9 @@ internal sealed class SlantButton : Button
         }
         if (Focused && ShowFocusCues && Kind != SlantKind.Primary)
         {
-            using var pen = new Pen(Color.FromArgb(160, StreetTheme.Yellow));
-            g.DrawRectangle(pen, 1, 1, Width - 3, Height - 3);
+            using var pen = new Pen(Color.FromArgb(200, StreetTheme.Yellow), Math.Max(1f, 1.5f * k));
+            using var ring = StreetTheme.Round(new RectangleF(1.5f, 1.5f, Width - 3, Height - 3), 6 * k);
+            g.DrawPath(pen, ring);
         }
         var format = TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine;
         format |= Kind == SlantKind.Text
@@ -479,9 +524,9 @@ internal sealed class GlassToggle : CheckBox
         var track = new RectangleF(0.5f, top, trackW, trackH);
         using (var path = StreetTheme.Round(track, trackH / 2))
         {
-            using var fill = new SolidBrush(Checked ? (Enabled ? StreetTheme.Yellow : Color.FromArgb(110, StreetTheme.Yellow)) : Color.FromArgb(Enabled ? 58 : 28, 255, 255, 255));
+            using var fill = new SolidBrush(Checked ? (Enabled ? StreetTheme.Yellow : Color.FromArgb(110, StreetTheme.Yellow)) : Color.FromArgb(Enabled ? 40 : 20, 255, 255, 255));
             g.FillPath(fill, path);
-            using var edge = new Pen(Color.FromArgb(Checked ? 0 : 70, 255, 255, 255));
+            using var edge = new Pen(Color.FromArgb(Checked ? 0 : 56, 255, 255, 255));
             g.DrawPath(edge, path);
         }
         float knob = 14 * k, inset = 3 * k;
@@ -535,9 +580,9 @@ internal sealed class FieldFrame : Control
         StreetTheme.PaintBehind(this, g);
         g.SmoothingMode = SmoothingMode.AntiAlias;
         var rect = new RectangleF(0.5f, 0.5f, Width - 1, Height - 1);
-        using var path = StreetTheme.Round(rect, 8 * StreetTheme.K(this));
+        using var path = StreetTheme.Round(rect, 6 * StreetTheme.K(this));
         using (var fill = new SolidBrush(StreetTheme.Field)) g.FillPath(fill, path);
-        using var edge = new Pen(Box.Focused ? Color.FromArgb(200, StreetTheme.Yellow) : Color.FromArgb(60, 255, 255, 255));
+        using var edge = new Pen(Box.Focused ? Color.FromArgb(220, StreetTheme.Yellow) : Color.FromArgb(40, 255, 255, 255));
         g.DrawPath(edge, path);
     }
 }
@@ -582,7 +627,7 @@ internal sealed class GlassCombo : ComboBox
     {
         if (e.Index < 0) return;
         bool selected = (e.State & DrawItemState.Selected) != 0 && (e.State & DrawItemState.ComboBoxEdit) == 0;
-        using (var background = new SolidBrush(selected ? Color.FromArgb(52, 54, 58) : StreetTheme.Field)) e.Graphics.FillRectangle(background, e.Bounds);
+        using (var background = new SolidBrush(selected ? Color.FromArgb(38, 41, 46) : StreetTheme.Field)) e.Graphics.FillRectangle(background, e.Bounds);
         if (selected)
         {
             using var bar = new SolidBrush(StreetTheme.Yellow);
@@ -629,10 +674,10 @@ internal sealed class GlassCombo : ComboBox
         g.SmoothingMode = SmoothingMode.AntiAlias;
         float k = StreetTheme.K(this);
         var rect = new RectangleF(0.5f, 0.5f, Width - 1, Height - 1);
-        using var path = StreetTheme.Round(rect, 8 * k);
+        using var path = StreetTheme.Round(rect, 6 * k);
         using (var fill = new SolidBrush(StreetTheme.Field)) g.FillPath(fill, path);
         bool active = Focused || DroppedDown;
-        using (var edge = new Pen(active ? Color.FromArgb(200, StreetTheme.Yellow) : hot && Enabled ? Color.FromArgb(110, 255, 255, 255) : Color.FromArgb(60, 255, 255, 255)))
+        using (var edge = new Pen(active ? Color.FromArgb(220, StreetTheme.Yellow) : hot && Enabled ? Color.FromArgb(96, 255, 255, 255) : Color.FromArgb(40, 255, 255, 255)))
             g.DrawPath(edge, path);
         string text = SelectedIndex >= 0 ? GetItemText(Items[SelectedIndex]) : Text;
         TextRenderer.DrawText(g, text, Font, new Rectangle((int)(12 * k), 0, Width - (int)(46 * k), Height), Enabled ? StreetTheme.Ink : StreetTheme.Muted,
@@ -670,6 +715,9 @@ internal sealed class UiScaler
     }
 
     public float Scale { get; private set; } = 1f;
+
+    // False once a window sizes itself (the launcher's resizable page): Apply then leaves the window alone.
+    public bool Enabled { get; set; } = true;
 
     // Testing and support overrides: RESTREET_UI_DPI=150 (percent) and RESTREET_UI_AREA=1280x680 (work area).
     static float? DpiOverride => float.TryParse(Environment.GetEnvironmentVariable("RESTREET_UI_DPI"), out float percent) && percent >= 50 ? percent / 100f : null;
@@ -729,7 +777,7 @@ internal sealed class UiScaler
 
     public void Apply()
     {
-        if (applying || !captured) return;
+        if (!Enabled || applying || !captured) return;
         applying = true;
         try
         {
