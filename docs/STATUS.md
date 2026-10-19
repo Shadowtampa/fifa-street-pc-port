@@ -1,5 +1,27 @@
 # Validation and known limitations
 
+## ReStreet 2.0.2 (current)
+
+Tested by the developer on Windows 11 (AMD Radeon RX 9070 XT, Ryzen 5 7600), with two game copies on the live-like server path (about 180 ms ping):
+
+| Check | Result |
+|---|---|
+| Sign-in and News Feed on the live servers | Passed (2.0.1 fix) |
+| Friend requests, game invites (accept / decline), friends Guide on F6 | Passed |
+| Launcher rooms: both games reach the lobby and kick off | Passed |
+| START + B to leave an online match | Passed |
+| Launcher language and monitor reach the game | Passed |
+| Vulkan starts and signs in | Passed |
+| Update from 1.5.7 / 2.0 / 2.0.1 keeps region, online name, settings and World Tour saves | Passed |
+
+**Not yet tested on 2.0:** two separate real PCs by the team, NVIDIA and Intel graphics, Linux with Wine / Proton.
+
+**Known issues:** World Tour can close the game when leaving a match (fix in testing); player portraits and the phone messages in a new World Tour can look wrong; plus the limits listed in the [README](../README.md#known-limits-20).
+
+---
+
+## Older: ReStreet v1.3
+
 Last updated: **14 October 2026**, for **ReStreet v1.3** (offline only). This page separates what was tested from what was not.
 
 ## What was tested for v1.3

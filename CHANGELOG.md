@@ -1,5 +1,57 @@
 ﻿# ReStreet - FIFA Street 2012 Recompiled: changelog
 
+## v2.0.2 Online Beta
+
+World Tour progress restored. Offered automatically by the launcher.
+
+### Fixed
+- **World Tour started from zero on 2.0.** 2.0 looked for saves in a new, empty profile folder. It now loads the same saves as 1.5 (`Documents\fifastreet\B13EBABEBABEBABE`). Nothing had been deleted. Anything played on 2.0 / 2.0.1 before this update stays in its own folder and is not merged.
+
+## v2.0.1 Online Beta
+
+Sign-in fix. Offered automatically by the launcher.
+
+### Fixed
+- **"SIGN IN FAILED" on 2.0.** The game tried to reach the online service through a wrong local network address instead of 127.0.0.1, so it never reached the servers.
+
+## v2.0 Online Beta
+
+A new graphics engine, a launcher with friends, chat and rooms, and online play from start to kick-off.
+
+### New
+- **Graphics engine** based on AnDr3zF's "Deck" port: sharper image and much higher frame rates (about 400 FPS in a match on the test PC, against about 165 on 1.5.7). Direct3D 12 and Vulkan.
+- **Graphics options:** FSR 1 modes, internal resolution up to 4x, aspect ratio, anisotropic filtering, ambient occlusion (SSAO, HBAO, GTAO), MSAA, FXAA and an FPS limit.
+- **Launcher:** social page with online players, friends, requests and chat; game rooms that bring both players to the lobby; performance, display, graphics and controls pages.
+- **In-game friends Guide** on F6 or the controller's Xbox button, with friends list and game invites (accept with A / Space, decline with B / Shift). Quit an online match with START + B.
+- **Brazilian Portuguese** translation by Eze_, with heights and weights in cm and kg.
+- **One installer** (`ReStreet-2.0-Setup.exe`): installs from the ISO or updates an older ReStreet install.
+
+### Known limits
+- No mouse for skill moves yet; Vulkan can have small stutters; the game renders internally at 1280x720; START + B also shows the game's own question behind it; a launcher room does not pull a player out of another lobby; chat is only in the launcher; two games on the same PC can lose the connection after an invite.
+
+## v1.5.7 Online Beta
+
+### Fixed
+- Matches from the **Matches** tab no longer get stuck on "loading" when a game was already open: the launcher restarts the game by itself when the match fills up.
+- Friend invites always go to the game your friend has open now, not an old crashed one.
+
+## v1.5.6 Online Beta
+
+### Improved
+- Smoother on 4-core CPUs and laptops: while the game waits for the graphics card, the CPU goes to the parts doing work (about 145 to 160-171 FPS on a 4-core test).
+- Performance reports always record the graphics card really used and whether it is integrated.
+
+## v1.5.5 Online Beta
+
+### New
+- Matches open by themselves: when someone joins, both games go straight to the match lobby. Stadiums picked by photo, with the game's own names.
+- **Controls** page: play with keyboard + mouse or keyboard only, rebindable keys; a controller still works.
+- New folder layout like the FIFA games on PC: `Game` (game files) and `Binaries` (program, files and Logs). Moved automatically on update.
+
+### Fixed
+- "Your Gamer Profile does not have the correct permissions" when a friend joined or after a match (server fix).
+- Pink crowds with two copies on one PC; stutter in the first matches of each session (shaders now saved); FPS counter shows the slowest moment; antivirus warnings about `TracyClient.dll` (file removed).
+
 ## v1.5.4 Online Beta
 
 Matches tab and a smoother launcher. Offered automatically by the v1.5.1+ launcher.

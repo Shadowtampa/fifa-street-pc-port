@@ -2,184 +2,104 @@
 
 <img src="docs/images/project-icon.png" alt="ReStreet" width="64">
 
-# ReStreet - FIFA Street 2012 Recompiled
+# ReStreet — FIFA Street (2012) on PC
 
-**FIFA Street (2012) on Windows PC, built with ReXGlue. Bring your own game.**
+**FIFA Street (2012) recompiled for Windows, with online play. Bring your own game.**
 
 ### Ported by: SamuelitoDaVila
 
-[Download](https://github.com/samuelit0davila/fifa-street-pc-port/releases/latest) · [Changelog](CHANGELOG.md) · [Report a bug](https://github.com/samuelit0davila/fifa-street-pc-port/issues) · [Build from source](docs/BUILDING.md)
+[**Download**](https://github.com/samuelit0davila/fifa-street-pc-port/releases/latest) · [Changelog](CHANGELOG.md) · [Known issues](docs/STATUS.md) · [Report a bug](https://github.com/samuelit0davila/fifa-street-pc-port/issues) · [Build from source](docs/BUILDING.md)
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Z3B428N88S)
 
-<img src="docs/images/restreet-1.5.4-banner.png" alt="ReStreet 1.5.4 Online Beta: new Matches tab, automatic updates, social hub and performance page, on Europe and South America servers" width="1000">
+<img src="docs/images/restreet-2.0-banner.jpg" alt="ReStreet 2.0 — out now" width="900">
 
 </div>
 
 ## What is this
 
-ReStreet is a Windows PC version of FIFA Street (2012) made by recompiling the Xbox 360 game with [ReXGlue](https://github.com/rexglue/rexglue-sdk). It comes with a graphical installer and a launcher with Direct3D 12 and Vulkan support, display and resolution settings, and performance profiles.
+ReStreet is a Windows PC version of FIFA Street (2012), made by recompiling the Xbox 360 game. It comes with a one-file installer, a launcher, and free online play on community servers (Europe and South America).
 
-You need your own copy of the game: an Xbox 360 ISO of FIFA Street (2012). The ISO and the game files are not included.
+You need your own copy of the game: an **Xbox 360 ISO of FIFA Street (2012)**. The ISO and the game files are not included.
 
-**Online play** is a free open beta: a patch you install over v1.3. The latest is **v1.5.4 Online Beta**.
+**Current version: 2.0.2 Online Beta.**
 
-## What's new in v1.5.4 (Online Beta)
+## What's new in 2.0
 
-- **Matches tab in the launcher:** post a match with a title, mode and stadium, see every open match on your server and join the one you want; both press PLAY and the game goes to the match set-up by itself.
-- **Smoother launcher:** no flash of the old interface at start, and no false "Server not reachable" after a single slow moment.
-- On v1.5.1 or newer the launcher installs this update by itself. From older versions, download **ReStreet-1.5.4-Online-Beta.exe** from the [v1.5.4 release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/tag/v1.5.4-online-beta).
+- **New graphics engine**, based on AnDr3zF's "Deck" port: sharper image and much higher frame rates (about 400 FPS in a match on the test PC). Direct3D 12 and Vulkan.
+- **Graphics options:** FSR 1, internal resolution up to 4x, aspect ratio, anisotropic filtering, ambient occlusion (SSAO / HBAO / GTAO), MSAA, FXAA and an FPS limit.
+- **Launcher social page:** who is online, friends and requests, chat, and **game rooms** that bring both players to the same lobby.
+- **In-game friends Guide:** press **F6** (or the Xbox button on a controller) to see your friends and invite them. Accept an invite with A / Space, decline with B / Shift.
+- **Brazilian Portuguese** translation by Eze_.
+- **Automatic updates:** the launcher finds new versions, checks them and installs them, keeping your name, server, settings and World Tour progress.
 
-## What's new in v1.5.3 (Online Beta)
-
-- **Open games go to the match by themselves:** create or join a game in the launcher, both press PLAY, and the game skips the title screens and reaches the Friend Match set-up with your opponent.
-- **New launcher everywhere:** without WebView2 (Linux with Wine/Proton, or Windows without the runtime) the same interface opens in its own window through your browser.
-- Fixes: false "Chat is not available" message; red crosses in the old launcher window on Wine.
-- On v1.5.1 or v1.5.2 the launcher installs this update by itself. From older versions, download **ReStreet-1.5.3-Online-Beta.exe** from the [v1.5.3 release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/tag/v1.5.3-online-beta).
-
-## What's new in v1.5.2 (Online Beta)
-
-- **Open games in the launcher:** create a game (mode and stadium) or join one in one click from the Social page; when it is full, PLAY takes both players to the match.
-- **See who is looking for a match:** the mode each player is searching for and how long they have waited.
-- On v1.5.1 the launcher installs this update by itself (**Update now**). From older versions, download **ReStreet-1.5.2-Online-Beta.exe** from the [v1.5.2 release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/tag/v1.5.2-online-beta).
-
-## What's new in v1.5.1 (Online Beta)
-
-- **Automatic updates:** the launcher finds new versions on GitHub, downloads and checks them (SHA-256) and installs them for you, keeping your name, server and saves. v1.5.1 is the last patch you install by hand.
-- **Performance page in the launcher:** your FPS in matches, replays and menus for the last 30 sessions, the graphics card the game really used, crashes, and tips (for example when the game ran on integrated graphics).
-- Performance reports now include the graphics card name.
-- Installs over v1.3, v1.4 or v1.5. Download **ReStreet-1.5.1-Online-Beta.exe** from the [v1.5.1 release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/tag/v1.5.1-online-beta).
-
-## What's new in v1.5 (Online Beta)
-
-- **New launcher:** a glass design with live server ping and player counts, and a server switch (Europe / South America).
-- **Social page in the launcher:** who is online and what they are doing, friends and friend requests, a general chat per server and private chats with friends, block and report.
-- **Laptops with two graphics cards:** the game now picks the dedicated card automatically on Direct3D 12 and Vulkan.
-- **Performance reports:** after each session the launcher shows your FPS in matches, replays and menus, and, if you agree, sends an anonymous report (graphics card, processor, memory, settings, FPS; no name, no account) so we can find where the game is slow on real PCs. Turn it off in Advanced.
-- Installs over **v1.3** or over the **v1.4 Online Beta Test**, keeping your saves, settings and online name. Download **ReStreet-1.5-Online-Beta.exe** from the [v1.5 release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/tag/v1.5-online-beta).
-
-## What's new in v1.4 (Online Beta Test)
-
-FIFA Street 2012 is back online. EA shut the servers down years ago; now you can play the original online modes again on community servers, with real people.
-
-- **Street Season, Division Match:** get matched with a real opponent, play 10-game seasons, earn promotion or fight relegation.
-- **Street Season, Cup Match:** a new cup every week, a full tournament bracket and a trophy for the winner.
-- **Friend Match:** invite a friend and play.
-- **Online Team Play:** pick your side and play as a team.
-- **Friends (Xbox Guide, Guide button or F6):** friends list, add friends, gamer cards and invites.
-- **EA SPORTS Hub (Back button on the main menu):** News Feed with your and your friends' results, leaderboards (Top 100, My 100, Friends and Country) and EAS FC levels.
-- **World Tour:** Play Online (Gold).
-- **Discord Rich Presence:** your Discord profile shows *Playing ReStreet PC* and what you are doing.
-- **Two servers:** Europe (Europe, Africa, Middle East) and South America. Each server has its own players, seasons, friends and leaderboards; pick the same server as your friends.
-- **New launcher design.**
-
-### Install the online beta (v1.5.4)
-
-1. Install **ReStreet v1.3** first ([download v1.3](https://github.com/samuelit0davila/fifa-street-pc-port/releases/tag/v1.3)).
-2. Close the launcher and the game.
-3. Run **ReStreet-1.5.4-Online-Beta.exe** from the [v1.5.4 release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/tag/v1.5.4-online-beta), pick your ReStreet folder, choose your online name and your server.
-4. Open the launcher (it shows **V1.5.4 · ONLINE BETA**) and press **PLAY**.
-
-Your saves and settings are kept. Your online name is protected by a personal key stored in `online.json`: keep a copy of that file if you reinstall. To go back to offline, run the patch again and choose **Remove the online patch**.
-
-**Known issues:** no Rematch at the end of a match yet; Street Network video uploads are off for now; in Online Team Play the second player's game can rarely stay on the loading screen (restart the game); do not leave your player idle in a match, the game removes inactive players.
-
-## What's new in v1.3
-
-- **True VSync on Direct3D 12 and Vulkan:** no tearing and a new frame on every refresh, at any refresh rate you pick in the launcher (60, 120, 144, 165 Hz and beyond).
-- **Smooth motion:** each refresh shows the game's newest frame, with no half-rate drops or stutter when the game window has focus. Works with **Adaptive Sync / FreeSync** on.
-- **Honest FPS counter:** with VSync on, the in-game counter shows the frames that reach the screen, the same number as AMD, NVIDIA and other overlays.
-- **VSync off = no frame limit.**
-- **Clean stadium floors** on every graphics card, and a menu crash fixed.
-- Installs over v1.2. Saves and settings are kept. See the full [changelog](CHANGELOG.md).
-
-<img src="docs/images/start-screen.png" alt="ReStreet running on PC" width="1000">
-
-## What's new in v1.2
-
-- **Cutscenes and goal replays at your refresh rate**, no longer capped at 40 FPS.
-- **Goals and match setup no longer drop to 30-40 FPS**, and menus run at 60 FPS.
-- **Vulkan: goal replays are sharp** (they were blurred).
-- **Direct3D 12 with VSync on no longer falls to 1 FPS** on some laptops.
-- **Updating removes the online patch**, and works over v1.1 with or without it. Saves and settings are kept. See the full [changelog](CHANGELOG.md).
-
-## What's new in v1.1
-
-- **ReStreet main menu logo**, applied from the new `Mods` folder without changing your game files.
-- **Improved "Some" graphics readback**, now the default: less graphical garbage on floors and reflections, with the same speed.
-- **VSync works smoothly.** It keeps the game locked to your refresh rate with no tearing.
-- **Direct play:** start the game without the launcher window using `FifaStreetLauncher.exe --play`, or create a desktop shortcut with the new **Shortcut** button.
-- **Launcher and setup fit any screen**, at any resolution and Windows scale.
-- Your saves and settings are kept when you update. See the full [changelog](CHANGELOG.md).
-
-## What's new in v1.0
-
-- **Performance profiles** in the launcher: Balanced (default), Quality for strong PCs, and Performance for weaker PCs.
-- **Shader cache included**, so the first matches have fewer slow moments.
-- **FPS counter:** press **Home** to show or hide it.
-- **Exit shortcut:** hold **START** and press **B** (Xbox layout) or **START** and **Circle** (PlayStation layout) to open the exit prompt. A confirms, B cancels.
-- **New launcher and installer design.** Both follow the Windows display scale and shrink to fit small screens.
-- Same game files as v0.4.1, so your saves and settings keep working. See the full [changelog](CHANGELOG.md).
-
-<img src="docs/images/launcher.png" alt="The ReStreet launcher" width="1000">
+Full history: [CHANGELOG.md](CHANGELOG.md).
 
 ## Download and install
 
-1. Download **FifaStreetSetup.exe** from the [latest release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/latest) and check its SHA-256 against the value on the release page.
-2. Run it, choose your FIFA Street ISO and an empty folder, then press **INSTALL ReStreet**.
-3. When it finishes, press **OPEN LAUNCHER**, pick your settings and press **PLAY**.
+**New install**
 
-To update from an earlier version, select the folder that contains `Game` and `GameData`. No ISO is needed, and your saves and settings are kept. Only game versions that match the three verified original module hashes are accepted.
+1. Download **ReStreet-2.0.2-Setup.exe** from the [latest release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/latest). Optionally check it against the `.sha256` file next to it.
+2. Run it, choose your FIFA Street ISO, a folder, your online name and your server (Europe or South America).
+3. Open the launcher from the desktop shortcut and press **PLAY**.
 
-No compiler, Visual Studio or Internet connection is needed.
+**Already have ReStreet?**
 
-<img src="docs/images/installer.png" alt="The ReStreet installer" width="900">
+- On **1.5.1 or newer**: open the launcher and press **Update**. That's it.
+- On an older version: run the setup and pick your ReStreet folder. No ISO is needed; saves, settings and your online name are kept.
 
 ## System requirements
 
-These are estimates from my own testing, not guarantees. If you try it on an older PC, tell me your specs and FPS.
+Estimates from testing, not guarantees.
 
 | | |
 |---|---|
 | System | Windows 10 or 11, 64-bit |
-| CPU | x86-64 with SSSE3; a quad-core is safest |
-| GPU | Direct3D 12 or Vulkan with up-to-date drivers (about GTX 900 / RX 400 or newer) |
+| CPU | x86-64; a quad-core is safest |
+| GPU | Direct3D 12 or Vulkan with up-to-date drivers |
 | RAM | 8 GB |
-| Disk | 12 GB free to install, 2 GB to update |
+| Disk | about 12 GB free for a new install |
 | Game | Your own FIFA Street (2012) Xbox 360 ISO |
 
-On a weaker PC, choose the **Performance** profile in the launcher.
+On a weaker PC, choose the **Performance** profile in the launcher. Linux with Wine / Proton has not been tested on 2.0 yet.
 
-## Graphics backends
+## Online play
 
-The launcher packages two validated ReXGlue graphics backends: **Direct3D 12** (the default, with GPU selection) and **Vulkan** (automatic device selection). It switches the matching runtime files by itself when you change the graphics API.
+- Free open beta on two servers: **Europe** and **South America**. Players, friends and leaderboards are per server.
+- Online modes, friend invites, launcher rooms and the News Feed work. Chat is in the launcher.
+- Your World Tour team is shown to other players on your server.
 
-Full readback is the validated mode for both. The Compatibility panel offers Some, Fast and None for more FPS, but those modes are not validated and can cause graphical corruption.
+## Known limits (2.0)
 
-## Resolution
+- No mouse for skill moves yet (the launcher hides that option on 2.0).
+- Vulkan can have small stutters; use Direct3D 12 if you see them.
+- The game renders internally at 1280x720 and is scaled to your screen.
+- START + B also shows the game's own "leave this session?" question behind the launcher's; close it with A.
+- A launcher room does not pull a player out of another lobby; leave that lobby first.
+- Two copies of the game on the same PC can lose the connection after an invite (different PCs are fine).
 
-Output resolution and internal rendering resolution are separate settings.
+More details and what was tested: [docs/STATUS.md](docs/STATUS.md).
 
-- **Output resolution:** the window or screen size, for example 1280x720 up to 3840x2160.
-- **Internal resolution:** a whole-number scale of the game's 1280x720 base: 1x is 1280x720, 2x is 2560x1440, 3x is 3840x2160 and 4x is 5120x2880.
+## Reporting a problem
 
-High settings are there for testing and do not promise 60 FPS.
+[Open an issue](https://github.com/samuelit0davila/fifa-street-pc-port/issues) or ask on Discord with:
 
-## Status
+- your ReStreet version, Windows version, CPU, GPU and RAM;
+- the graphics API (Direct3D 12 or Vulkan) and your launcher settings;
+- what happened and how to repeat it;
+- the logs: **Open logs** in the launcher (`Binaries\Logs\fifastreet.log` and `launcher_settings.txt`).
 
-This is the first stable release, but it is still a community port: performance depends on your hardware, drivers and settings. World Tour, Practice, Direct3D 12 and Vulkan were tested on earlier releases; this release changes the launcher, installer, overlays and the performance options.
-
-See [known issues and validation](docs/STATUS.md). If you find a problem, [open an issue](https://github.com/samuelit0davila/fifa-street-pc-port/issues) with your hardware, Windows and driver versions, the graphics API and settings, and the logs from **Open logs** in the launcher. Please do not upload ISOs or game files.
+Please do not upload ISOs or game files.
 
 ## Credits and licence
 
-I developed this project with assistance from **ChatGPT, OpenAI Codex and Anthropic's Claude (Claude Code)**, and directed and tested the work myself.
+- **SamuelitoDaVila** — port, online services, launcher, installer, 2.0 integration and testing.
+- **AnDr3zF** — the "Deck" port that the 2.0 graphics engine is built on.
+- **Eze_** — Brazilian Portuguese translation.
+- **Emran_Ahm3d** — Windows build fixes, game-data discovery, FootballCompEng function boundaries, and the Discord Rich Presence integration.
+- Developed with assistance from ChatGPT, OpenAI Codex and Anthropic's Claude (Claude Code), directed and tested by SamuelitoDaVila.
 
-Thanks to **Emran_Ahm3d** for investigating and suggesting the Windows patch line-ending fix, module-registration path handling, flexible game-data paths, the FootballCompEng function-boundary override and resource-compiler compatibility, and for the **Discord Rich Presence** integration in the launcher (the "Playing ReStreet PC" card, its `presence.json` configuration and setup guide), included since v1.4.
-
-Country leaderboard data: IP to country by [DB-IP.com](https://db-ip.com) (CC BY 4.0).
-
-Thanks to [ReXGlue](https://github.com/rexglue/rexglue-sdk), [Xenia](https://github.com/xenia-project/xenia), [extract-xiso](https://github.com/XboxDev/extract-xiso), LLVM, CMake, Ninja, .NET and MonoGame. See the [third-party notices](licenses/README.md).
+Thanks to [ReXGlue](https://github.com/rexglue/rexglue-sdk), [Xenia](https://github.com/xenia-project/xenia), [extract-xiso](https://github.com/XboxDev/extract-xiso), LLVM, CMake, Ninja, .NET and MonoGame. Country data: IP to country by [DB-IP.com](https://db-ip.com) (CC BY 4.0). See [CREDITS.md](CREDITS.md) and the [third-party notices](licenses/README.md).
 
 My original installer, launcher and scripts use the [MIT License](LICENSE). Third-party components keep their own licences. The installer includes generated game binaries; the MIT licence does not establish the right to redistribute them, and no legal clearance is claimed. FIFA Street, its game content, artwork and trademarks belong to their respective owners.
 
