@@ -95,7 +95,11 @@ public partial class LauncherForm
             string ui = Path.Combine(AppContext.BaseDirectory, "ui");
             if (!File.Exists(Path.Combine(ui, "launcher.html"))) { RevealWindow(); return; }
             string data = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ReStreet", "WebView2");
-            var env = await CoreWebView2Environment.CreateAsync(null, data);
+            // A minimized launcher must keep polling at full rate: Chromium otherwise slows the page's timers to once a
+            // minute, and a host waiting in a room started the game a minute late (the guest gave up meanwhile).
+            var options = new CoreWebView2EnvironmentOptions(
+                "--disable-background-timer-throttling --disable-renderer-backgrounding --disable-backgrounding-occluded-windows");
+            var env = await CoreWebView2Environment.CreateAsync(null, data, options);
             var view = new WebView2 { Dock = DockStyle.Fill, DefaultBackgroundColor = Color.FromArgb(11, 12, 18) };
             Controls.Add(view);
             view.BringToFront();
@@ -345,7 +349,19 @@ public partial class LauncherForm
 
     private int socialFailures;
 
+    private int socialPollBusy;
+    private volatile bool inRoom;
+
+    // A background poll is skipped while the previous one still runs: on a slow link they piled up every 3 s.
     private async Task SocialAsync(string cmd, JsonElement m)
+    {
+        if (cmd != "social") { await SocialCoreAsync(cmd, m); return; }
+        if (Interlocked.Exchange(ref socialPollBusy, 1) == 1) return;
+        try { await SocialCoreAsync(cmd, m); }
+        finally { Volatile.Write(ref socialPollBusy, 0); }
+    }
+
+    private async Task SocialCoreAsync(string cmd, JsonElement m)
     {
         var online = LoadOnlineConfig();
         if (online == null || !onlineModeBox.Checked || !PageConnected) return;
@@ -357,8 +373,8 @@ public partial class LauncherForm
         {
             if (cmd == "social" && channel == "")
             {
-                // Social page closed: refresh the badge only every 15 s.
-                if (DateTime.UtcNow - lastBackgroundSocial < TimeSpan.FromSeconds(15)) return;
+                // Social page closed: refresh the badge only every 15 s (every poll while in a room, to start the game on time).
+                if (!inRoom && DateTime.UtcNow - lastBackgroundSocial < TimeSpan.FromSeconds(15)) return;
                 lastBackgroundSocial = DateTime.UtcNow;
             }
             if (cmd == "chatSend")
@@ -399,26 +415,27 @@ public partial class LauncherForm
                 }
             }
 
-            // Fresh snapshot for the page.
-            using var friends = await PostJson(server, "/v1/friends", new { me = name, key, action = "list" });
-            using var players = await GetJson(server, "/v1/online");
+            // Fresh snapshot for the page. All requests at once: one after the other they took seconds on a far server.
+            var friendsTask = PostJson(server, "/v1/friends", new { me = name, key, action = "list" });
+            var playersTask = GetJson(server, "/v1/online");
+            var roomsTask = PostJson(server, "/v1/rooms", new { me = name, key, action = "list" });
+            var myRoomTask = PostJson(server, "/v1/rooms", new { me = name, key, action = "current" });
+            var convosTask = PostJson(server, "/v1/textchat", new { me = name, key, action = "conversations" });
+            var msgsTask = channel == "" ? Task.FromResult<JsonDocument?>(null)
+                : PostJson(server, "/v1/textchat", new { me = name, key, action = "read", channel, since = m.TryGetProperty("since", out var s2) && s2.ValueKind == JsonValueKind.Number ? s2.GetInt64() : 0 });
             JsonDocument? convos = null, msgs = null;
             bool chatOff = false;
             try
             {
-                convos = await PostJson(server, "/v1/textchat", new { me = name, key, action = "conversations" });
-                if (channel != "")
-                {
-                    long since = m.TryGetProperty("since", out var sv) && sv.ValueKind == JsonValueKind.Number ? sv.GetInt64() : 0;
-                    if (cmd != "social") since = 0;  // after sending, reload the channel from the page's last id
-                    msgs = await PostJson(server, "/v1/textchat", new { me = name, key, action = "read", channel, since = m.TryGetProperty("since", out var s2) && s2.ValueKind == JsonValueKind.Number ? s2.GetInt64() : 0 });
-                }
+                convos = await convosTask;
+                msgs = await msgsTask;
                 chatOff = convos == null && msgs == null;  // either answer means the chat is there
             }
             catch (HttpRequestException) { chatOff = true; }
-
-            using var rooms = await PostJson(server, "/v1/rooms", new { me = name, key, action = "list" });
-            using var myRoom = await PostJson(server, "/v1/rooms", new { me = name, key, action = "current" });
+            using var friends = await friendsTask;
+            using var players = await playersTask;
+            using var rooms = await roomsTask;
+            using var myRoom = await myRoomTask;
             var waited = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             if (players.RootElement.TryGetProperty("searching_list", out var sl) && sl.ValueKind == JsonValueKind.Array)
                 foreach (var it in sl.EnumerateArray())
@@ -454,6 +471,7 @@ public partial class LauncherForm
                 payload["rooms"] = JsonSerializer.Deserialize<object>(rl.GetRawText());
             if (myRoom != null && myRoom.RootElement.TryGetProperty("room", out var mr))
                 payload["myRoom"] = JsonSerializer.Deserialize<object>(mr.GetRawText());
+            inRoom = myRoom != null && myRoom.RootElement.TryGetProperty("room", out var mr3) && mr3.ValueKind == JsonValueKind.Object;
             OnRoomState(myRoom != null && myRoom.RootElement.TryGetProperty("room", out var mr2) ? mr2.Clone() : null);
             if (friends != null)
             {

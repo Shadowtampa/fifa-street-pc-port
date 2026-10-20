@@ -87,6 +87,7 @@ public partial class LauncherForm
 
     private void ApplyDeckLaunch(ProcessStartInfo startInfo, string exeDirectory, string graphicsApi, int adapter)
     {
+        UseCpuBuild(exeDirectory, graphicsApi);
         // The deck port's own start-up switches (native renderer, its shader folders...), as its launcher sets them.
         foreach (string line in File.ReadAllLines(Path.Combine(exeDirectory, "ajustes-del-port.txt")))
         {
@@ -99,6 +100,36 @@ public partial class LauncherForm
         else if (adapter >= 0) startInfo.Environment["REX_D3D12_ADAPTER"] = adapter.ToString(CultureInfo.InvariantCulture);
 
         SaveDeckToml();
+    }
+
+    // The deck build is compiled for x86-64-v3 (AVX2/BMI2/FMA): on older CPUs (Ivy Bridge, AMD FX...) its DLLs fail to
+    // load with 0xc0000142. Binaries\AVX2 and Binaries\NoAVX2 hold the game built with and without it; before every
+    // start the set for this CPU goes over Binaries\ (only files that differ, so a copy is paid once). The AVX2 runtime
+    // is Backends\<api>\rexruntime.dll, already copied by the caller; NoAVX2 has its own Backends.
+    private static readonly bool CpuHasX86_64V3 =
+        System.Runtime.Intrinsics.X86.Avx2.IsSupported && System.Runtime.Intrinsics.X86.Bmi2.IsSupported &&
+        System.Runtime.Intrinsics.X86.Fma.IsSupported && System.Runtime.Intrinsics.X86.Lzcnt.IsSupported;
+
+    private static void UseCpuBuild(string exeDirectory, string graphicsApi)
+    {
+        string set = Path.Combine(exeDirectory, CpuHasX86_64V3 ? "AVX2" : "NoAVX2");
+        if (!Directory.Exists(set)) return;
+        foreach (string name in new[] { "fifastreet.exe", "fifastreet_fifadllzf_xex.dll", "fifastreet_footballcompengzf_xex.dll" })
+            CopyIfDifferent(Path.Combine(set, name), Path.Combine(exeDirectory, name));
+        // rexruntime.dll AND rexgpu-xenos.dll: the GPU plugin is x86-64-v3 code too.
+        string backend = Path.Combine(set, "Backends", graphicsApi);
+        if (!CpuHasX86_64V3 && Directory.Exists(backend))
+            foreach (string dll in Directory.GetFiles(backend, "*.dll"))
+                CopyIfDifferent(dll, Path.Combine(exeDirectory, Path.GetFileName(dll)));
+    }
+
+    private static void CopyIfDifferent(string source, string target)
+    {
+        if (!File.Exists(source)) return;
+        var s = new FileInfo(source);
+        var t = new FileInfo(target);
+        if (t.Exists && t.Length == s.Length && t.LastWriteTimeUtc == s.LastWriteTimeUtc) return;
+        File.Copy(source, target, true);  // File.Copy keeps the write time, so the next start skips it
     }
 
     // The launcher's current choices into fifastreet.toml (on every change, and before each start).

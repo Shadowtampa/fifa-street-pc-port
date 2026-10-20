@@ -19,6 +19,8 @@ public partial class LauncherForm
         if (players < seats || id == roomLaunchedFor || !onlineModeBox.Checked) return;
         BeginInvoke(async () =>
         {
+            // Two overlapping refreshes can both see the full room: the second must not kill the game the first started.
+            if (id == roomLaunchedFor) return;
             roomLaunchedFor = id;
             // A game that is already open sits on some menu the room driver cannot walk from (it starts at the
             // title screen), so the match is never created: close it and start it again for the room. The page
