@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ReStreet — FIFA Street 2012 on PC, online again</title>
+  <meta name="description" content="ReStreet is a free, unofficial PC port of FIFA Street (2012) with online play, a launcher with friends, chat and rooms, and a new graphics engine." />
+  <meta name="theme-color" content="#0b0c12" />
+  <meta property="og:title" content="ReStreet — FIFA Street 2012 on PC, online again" />
+  <meta property="og:description" content="Free, unofficial PC port of FIFA Street (2012) with online play." />
+  <meta property="og:image" content="https://samuelit0davila.github.io/fifa-street-pc-port/assets/img/shot-juggle.jpg" />
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="preload" href="assets/fonts/anton.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="assets/css/site.css" />
+  <script>document.documentElement.classList.add("js")</script>
+</head>
+<body>
+  <a class="skip" href="#main" data-i18n="skip">Skip to content</a>
+  <div class="progress" aria-hidden="true"><span id="progress"></span></div>
+
+  <header class="nav" id="nav">
+    <div class="wrap nav__in">
+      <a class="nav__logo" href="#top" aria-label="ReStreet"><img src="assets/img/logo.png" alt="ReStreet" width="160" height="27" /></a>
+      <nav class="nav__links" id="navlinks" aria-label="Main">
+        <a href="#features" data-i18n="nav.features">Features</a>
+        <a href="#install" data-i18n="nav.install">Install</a>
+        <a href="#changelog" data-i18n="nav.changelog">Changelog</a>
+        <a href="#faq" data-i18n="nav.faq">FAQ</a>
+        <a href="#community" data-i18n="nav.community">Community</a>
+      </nav>
+      <div class="nav__end">
+        <label class="sr" for="lang" data-i18n="lang">Language</label>
+        <select id="lang" class="lang"></select>
+        <a class="btn btn--sm btn--hot dl-link" href="https://github.com/samuelit0davila/fifa-street-pc-port/releases/latest" data-i18n="nav.download">Download</a>
+        <button class="burger" id="burger" aria-expanded="false" aria-controls="navlinks"><span class="sr" data-i18n="menu">Menu</span><i></i><i></i><i></i></button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero" id="top">
+      <video class="hero__video" id="heroVideo" autoplay muted loop playsinline preload="auto" poster="assets/img/hero-poster.jpg" aria-hidden="true">
+        <source src="assets/video/hero.mp4" type="video/mp4" />
+      </video>
+      <div class="hero__shade"></div>
+      <div class="wrap hero__in">
+        <p class="kicker reveal" data-i18n="hero.kicker">FIFA Street 2012 · PC · Online beta</p>
+        <h1 class="hero__title">
+          <span class="line"><span class="split" data-i18n="hero.t1">FIFA Street</span></span>
+          <span class="line"><span class="split grad" data-i18n="hero.t2">is back online.</span></span>
+        </h1>
+        <p class="hero__sub reveal" data-i18n="hero.sub">Division Matches, weekly Cups and Friend Matches with real players, a launcher with friends, chat and rooms, and a new engine at about 400 FPS. Free.</p>
+        <div class="hero__cta reveal">
+          <a class="btn btn--hot btn--lg dl-link" href="https://github.com/samuelit0davila/fifa-street-pc-port/releases/latest">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16" /></svg>
+            <span data-i18n="hero.dl">Download</span>
+          </a>
+          <a class="btn btn--ghost btn--lg" href="#trailer">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+            <span data-i18n="hero.watch">Watch the trailer</span>
+          </a>
+        </div>
+        <p class="hero__meta reveal"><span data-i18n="hero.meta">Windows 10/11 64-bit · needs your own FIFA Street (2012) Xbox 360 ISO</span></p>
+      </div>
+      <a class="scroll" href="#trailer" aria-label="Scroll"><span></span></a>
+      <button class="motion" id="motionBtn" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-pause" d="M8 5v14M16 5v14" /><path class="i-play" d="M8 5v14l11-7z" /></svg><span id="motionLabel">Pause animations</span></button>
+    </section>
+
+    <!-- MARQUEE -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span>Online</span><b></b><span>World Tour</span><b></b><span>Direct3D 12</span><b></b><span>Vulkan</span><b></b><span>~400 FPS</span><b></b><span>F6 Friends Guide</span><b></b><span>EN · PT-BR · ES · FR · DE · IT</span><b></b><span>Free</span><b></b>
+        <span>Online</span><b></b><span>World Tour</span><b></b><span>Direct3D 12</span><b></b><span>Vulkan</span><b></b><span>~400 FPS</span><b></b><span>F6 Friends Guide</span><b></b><span>EN · PT-BR · ES · FR · DE · IT</span><b></b><span>Free</span><b></b>
+      </div>
+    </div>
+
+    <!-- TRAILER -->
+    <section class="section" id="trailer">
+      <div class="wrap">
+        <header class="head reveal">
+          <p class="kicker" data-i18n="trailer.kicker">Trailer</p>
+          <h2 class="h2" data-i18n="trailer.title">See it in motion</h2>
+          <p class="note" data-i18n="trailer.note">Real gameplay at 60 FPS. Turn the sound on for the goals.</p>
+        </header>
+        <figure class="player reveal">
+          <video id="reel" controls muted playsinline preload="metadata" poster="assets/img/trailer-poster.jpg">
+            <source src="assets/video/trailer.mp4" type="video/mp4" />
+          </video>
+          <figcaption class="sr" data-i18n="trailer.caption">Trailer captured in-game at maximum settings: World Tour, menus, goals, skills, the new engine, online play and the launcher.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="section" id="features">
+      <div class="wrap">
+        <header class="head reveal">
+          <p class="kicker" data-i18n="feat.kicker">What you get</p>
+          <h2 class="h2" data-i18n="feat.title">Everything the street needs</h2>
+        </header>
+        <div class="cards">
+          <article class="card reveal tilt">
+            <div class="card__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" /></svg></div>
+            <h3 data-i18n="f1.t">Online play</h3>
+            <p data-i18n="f1.d">Division Matches with 10-game seasons, a new Cup every week, Friend Matches and Online Team Play, on community servers.</p>
+          </article>
+          <article class="card reveal tilt">
+            <div class="card__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z" /><path d="M8 10h8M8 13h5" /></svg></div>
+            <h3 data-i18n="f2.t">Launcher with friends</h3>
+            <p data-i18n="f2.d">See who is online, add friends, chat in your server channel or in private, and open game rooms that take both players to the lobby.</p>
+          </article>
+          <article class="card reveal tilt">
+            <div class="card__icon card__icon--key">F6</div>
+            <h3 data-i18n="f3.t">In-game friends Guide</h3>
+            <p data-i18n="f3.d">Press F6 or the Xbox button for your friends list and game invites. Accept with A or Space, decline with B or Shift.</p>
+          </article>
+          <article class="card reveal tilt">
+            <div class="card__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z" /></svg></div>
+            <h3 data-i18n="f4.t">New graphics engine</h3>
+            <p data-i18n="f4.d">Built on AnDr3zF's Deck port: Direct3D 12 and Vulkan, FSR 1, up to 4x internal resolution, SSAO / HBAO / GTAO, MSAA, FXAA and an FPS limit.</p>
+          </article>
+          <article class="card reveal tilt">
+            <div class="card__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3 6 6 .9-4.5 4.3 1 6.3L12 16.6 6.5 19.5l1-6.3L3 8.9 9 8z" /></svg></div>
+            <h3 data-i18n="f5.t">World Tour</h3>
+            <p data-i18n="f5.d">Build your squad and take it around the world. Updates keep your World Tour progress, your name, server and settings.</p>
+          </article>
+          <article class="card reveal tilt">
+            <div class="card__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h10M8 3v2m3 0c-1 5-4 8-7 9m2-5c1 2 4 4 6 4" /><path d="M13 21l4-10 4 10m-6.5-3h5" /></svg></div>
+            <h3 data-i18n="f6.t">6 languages</h3>
+            <p data-i18n="f6.d">The launcher speaks English, Brazilian Portuguese, Spanish, French, German and Italian. In-game Brazilian Portuguese by Eze_.</p>
+          </article>
+          <article class="card reveal tilt">
+            <div class="card__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10m6 10V4m6 16v-7m4 7H2" /></svg></div>
+            <h3 data-i18n="f7.t">Performance profiles</h3>
+            <p data-i18n="f7.d">Balanced, Quality, Performance or Custom, plus display, graphics and controls pages right in the launcher.</p>
+          </article>
+          <article class="card reveal tilt">
+            <div class="card__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5" /></svg></div>
+            <h3 data-i18n="f8.t">One-click updates</h3>
+            <p data-i18n="f8.d">The launcher tells you when a new version is out. Click Update and you are on it, saves included.</p>
+          </article>
+        </div>
+
+        <div class="stats reveal" role="list">
+          <div class="stat" role="listitem"><b class="count" data-to="400" data-pre="~">~400</b><span data-i18n="s1">FPS in a match on the test PC</span></div>
+          <div class="stat" role="listitem"><b class="count" data-to="4" data-suf="x">4x</b><span data-i18n="s2">internal resolution</span></div>
+          <div class="stat" role="listitem"><b class="count" data-to="6">6</b><span data-i18n="s3">launcher languages</span></div>
+          <div class="stat" role="listitem"><b class="count" data-to="20">20</b><span data-i18n="s4">releases in 13 days</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INSTALL -->
+    <section class="section" id="install">
+      <div class="wrap install">
+        <div>
+          <header class="head reveal">
+            <p class="kicker" data-i18n="ins.kicker">Install</p>
+            <h2 class="h2" data-i18n="ins.title">On the court in four steps</h2>
+          </header>
+          <ol class="steps">
+            <li class="step reveal"><b>1</b><div><h3 data-i18n="i1.t">Download the installer</h3><p data-i18n="i1.d">Get ReStreet Setup.exe from the latest GitHub release. You can check it with the .sha256 file next to it.</p></div></li>
+            <li class="step reveal"><b>2</b><div><h3 data-i18n="i2.t">Run Setup</h3><p data-i18n="i2.d">Pick your own FIFA Street (2012) Xbox 360 ISO and an empty folder. Already have ReStreet? Pick its folder instead: no ISO needed.</p></div></li>
+            <li class="step reveal"><b>3</b><div><h3 data-i18n="i3.t">Open the launcher</h3><p data-i18n="i3.d">Choose your online name, your server and a performance profile, then press PLAY.</p></div></li>
+            <li class="step reveal"><b>4</b><div><h3 data-i18n="i4.t">Stay up to date</h3><p data-i18n="i4.d">When a new version is out, the launcher shows Update. Click it: your name, server, settings and World Tour progress are kept.</p></div></li>
+          </ol>
+        </div>
+        <aside class="req reveal" aria-labelledby="req-t">
+          <h3 id="req-t" data-i18n="req.t">Requirements (estimates)</h3>
+          <ul>
+            <li data-i18n="req.1">Windows 10 or 11, 64-bit</li>
+            <li data-i18n="req.2">CPU with SSSE3</li>
+            <li data-i18n="req.3">Direct3D 12 or Vulkan GPU (about GTX 900 / RX 400 or newer)</li>
+            <li data-i18n="req.4">8 GB RAM, 12 GB free disk space</li>
+            <li data-i18n="req.5">Your own FIFA Street (2012) Xbox 360 ISO</li>
+          </ul>
+          <a class="btn btn--hot dl-link" href="https://github.com/samuelit0davila/fifa-street-pc-port/releases/latest"><span data-i18n="hero.dl">Download</span></a>
+          <p class="req__note" data-i18n="req.note">The ISO and the original game files are not included.</p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- CHANGELOG -->
+    <section class="section" id="changelog">
+      <div class="wrap">
+        <header class="head reveal">
+          <p class="kicker" data-i18n="log.kicker">Changelog</p>
+          <h2 class="h2" data-i18n="log.title">Latest releases</h2>
+        </header>
+        <figure class="player player--slim reveal">
+          <video id="logVideo" muted loop playsinline preload="none" poster="assets/img/changelog-poster.jpg" aria-hidden="true">
+            <source src="assets/video/changelog.mp4" type="video/mp4" />
+          </video>
+        </figure>
+        <p class="note reveal" data-i18n="log.note">Release notes are written in English, straight from GitHub.</p>
+        <div class="releases" id="releases" aria-live="polite"></div>
+        <p class="center reveal"><a class="btn btn--ghost" href="https://github.com/samuelit0davila/fifa-street-pc-port/releases" data-i18n="log.all">All releases on GitHub</a></p>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" id="faq">
+      <div class="wrap faq">
+        <header class="head reveal">
+          <p class="kicker" data-i18n="faq.kicker">FAQ</p>
+          <h2 class="h2" data-i18n="faq.title">Questions and known issues</h2>
+        </header>
+        <div class="qa">
+          <details class="reveal"><summary data-i18n="q1">Is ReStreet official? Is it free?</summary><p data-i18n="a1">It is a free fan project, not affiliated with EA, Microsoft or Xbox. You need your own copy of FIFA Street (2012) for Xbox 360.</p></details>
+          <details class="reveal"><summary data-i18n="q2">Why do I need an ISO?</summary><p data-i18n="a2">The installer reads the game's data from your own disc image. The ISO and the original game files are never included in ReStreet.</p></details>
+          <details class="reveal"><summary data-i18n="q3">How do I update?</summary><p data-i18n="a3">Open the launcher and click Update. New players download the latest Setup.exe instead.</p></details>
+          <details class="reveal"><summary data-i18n="q4">I see small stutters on Vulkan.</summary><p data-i18n="a4">Vulkan has small stutters on 2.0. Switch to Direct3D 12 in the launcher.</p></details>
+          <details class="reveal"><summary data-i18n="q5">World Tour player portraits look scrambled.</summary><p data-i18n="a5">Known issue in My Squad; a fix is in progress. "Download not available" for some World Tour teams is a harmless server message.</p></details>
+          <details class="reveal"><summary data-i18n="q6">Can I use the mouse for skill moves?</summary><p data-i18n="a6">Not yet on 2.0: the launcher option is hidden for now.</p></details>
+          <details class="reveal"><summary data-i18n="q7">How do I leave an online match?</summary><p data-i18n="a7">Press START + B. The game's own "leave this session?" question can show behind it: close it with A.</p></details>
+          <details class="reveal"><summary data-i18n="q8">Is there chat in the game?</summary><p data-i18n="a8">Chat is only in the launcher for now. In the game, use the friends Guide (F6) for invites.</p></details>
+          <details class="reveal"><summary data-i18n="q9">Two games on one PC lose the connection.</summary><p data-i18n="a9">This can happen after an invite when both games run on the same PC. It does not affect players on different PCs.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <!-- CREDITS -->
+    <section class="section" id="credits">
+      <div class="wrap">
+        <header class="head reveal">
+          <p class="kicker" data-i18n="cred.kicker">Credits</p>
+          <h2 class="h2" data-i18n="cred.title">Made by the community</h2>
+        </header>
+        <div class="people">
+          <div class="person reveal tilt"><b>SamuelitoDaVila</b><span data-i18n="c1">Port, online, launcher and 2.0 integration</span></div>
+          <div class="person reveal tilt"><b>AnDr3zF</b><span data-i18n="c2">The "Deck" port behind the 2.0 graphics engine</span></div>
+          <div class="person reveal tilt"><b>Eze_.</b><span data-i18n="c3">Brazilian Portuguese translation</span></div>
+          <div class="person reveal tilt"><b>Emran_Ahm3d</b><span data-i18n="c4">Windows fixes and Discord Rich Presence</span></div>
+        </div>
+        <p class="note reveal" data-i18n="c5">Built on ReXGlue, Xenia and XenonRecomp. Thanks to all their contributors.</p>
+      </div>
+    </section>
+
+    <!-- COMMUNITY -->
+    <section class="section section--cta" id="community">
+      <div class="wrap cta reveal">
+        <h2 class="h2" data-i18n="com.title">Join the street</h2>
+        <p data-i18n="com.d">Find players, report bugs and follow new versions. Like ReStreet? You can support it on Ko-fi.</p>
+        <div class="cta__row">
+          <a class="btn btn--hot btn--lg" href="https://discord.gg/CqjYMGKyy2" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7c3-1.3 7-1.3 10 0l1.5 9c-1.6 1.3-3.3 2-4.5 2l-1-1.6M7 7L5.5 16c1.6 1.3 3.3 2 4.5 2l1-1.6M9 13h.01M15 13h.01" /></svg>
+            <span>Discord</span>
+          </a>
+          <a class="btn btn--ghost btn--lg" href="https://github.com/samuelit0davila/fifa-street-pc-port" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-4 1.5-4-2-6-2.5m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1-.3-3.4 1.3a11.6 11.6 0 0 0-6.2 0C6.6 2.6 5.6 2.9 5.6 2.9a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4.2 9.3c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2v3.5" /></svg>
+            <span>GitHub</span>
+          </a>
+          <a class="btn btn--ghost btn--lg btn--kofi" href="https://ko-fi.com/samuelitodavila" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM17 9h1.5a2.5 2.5 0 0 1 0 5H17M9.5 11.2c.8-.9 2.2-.4 2.2.6 0 1.1-2.2 2.4-2.2 2.4s-2.2-1.3-2.2-2.4c0-1 1.4-1.5 2.2-.6z" /></svg>
+            <span data-i18n="com.kofi">Support on Ko-fi</span>
+          </a>
+          <a class="btn btn--ghost btn--lg" href="https://github.com/samuelit0davila/fifa-street-pc-port/issues" rel="noopener"><span data-i18n="com.bug">Report a bug</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot__in">
+      <img src="assets/img/logo.png" alt="ReStreet" width="120" height="20" />
+      <p data-i18n="foot.legal">ReStreet is an unofficial fan project. It is not affiliated with, endorsed or sponsored by Electronic Arts, Microsoft or Xbox. FIFA Street and all game content belong to their respective owners.</p>
+      <p><a href="https://ko-fi.com/samuelitodavila" rel="noopener" data-i18n="foot.kofi">Support ReStreet on Ko-fi</a></p>
+      <p class="foot__small" data-i18n="foot.fonts">Fonts: Anton and Inter (SIL Open Font License).</p>
+    </div>
+  </footer>
+
+
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/releases.js"></script>
+  <script src="assets/js/site.js"></script>
+</body>
+</html>
