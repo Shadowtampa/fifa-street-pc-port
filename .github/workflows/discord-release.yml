@@ -23,8 +23,8 @@ jobs:
           BODY: ${{ github.event.release.body }}
         run: |
           if [ -z "$WEBHOOK" ]; then
-            echo "DISCORD_RELEASE_WEBHOOK secret is not set"
-            exit 1
+            echo "::warning::DISCORD_RELEASE_WEBHOOK secret is not set, no Discord post"
+            exit 0
           fi
           MENTION=""
           if [ -n "$ROLE_ID" ]; then MENTION="<@&$ROLE_ID> New update is out!"; fi

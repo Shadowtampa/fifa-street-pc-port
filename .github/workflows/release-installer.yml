@@ -135,7 +135,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           $clangRoot = 'C:\Program Files\LLVM\lib\clang'
           $clangVersion = (Get-ChildItem -LiteralPath $clangRoot -Directory |
-            Sort-Object { [version]$_.Name } -Descending |
+            Sort-Object { [int]($_.Name -split '\.')[0] } -Descending |  # LLVM 20+ names it just '20'
             Select-Object -First 1).Name
           if (-not $clangVersion) { throw 'Unable to determine the installed Clang resource version.' }
           $ninja = (Get-Command ninja.exe -ErrorAction Stop).Source
