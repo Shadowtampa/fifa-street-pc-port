@@ -56,6 +56,8 @@ Full history: [CHANGELOG.md](CHANGELOG.md).
 - On **1.5.1 or newer**: open the launcher and press **Update**. That's it.
 - On an older version: run the setup and pick your ReStreet folder. No ISO is needed; saves, settings and your online name are kept.
 
+**Step-by-step guide (PDF, with pictures):** [English](docs/guides/ReStreet-Guide-EN.pdf) · [Português](docs/guides/ReStreet-Guide-PT.pdf) · [Español](docs/guides/ReStreet-Guide-ES.pdf) — install, update, launcher settings, friends and fixing problems.
+
 ## System requirements
 
 Estimates from testing, not guarantees.
