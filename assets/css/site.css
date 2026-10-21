@@ -250,3 +250,9 @@ p { margin: 0; }
   .split .ch { transform: none; animation: none; }
   .js .reveal { transform: none; transition: opacity .6s ease; }
 }
+
+/* Player guides (PDF) under the install steps */
+.guides{margin-top:28px;padding:22px 24px;border:1px solid rgba(255,255,255,.12);border-radius:18px;background:rgba(255,255,255,.04)}
+.guides h3{margin:0 0 6px}
+.guides p{margin:0 0 14px;opacity:.8}
+.guides__btns{display:flex;flex-wrap:wrap;gap:10px}

@@ -135,11 +135,18 @@
       "Scegli la tua ISO di FIFA Street (2012) per Xbox 360 e una cartella vuota. Hai già ReStreet? Scegli la sua cartella: niente ISO."],
     "i3.t": ["Abra o launcher", "Abre el launcher", "Ouvrez le launcher", "Launcher öffnen", "Apri il launcher"],
     "i3.d": [
-      "Escolha seu nome online, seu servidor e um perfil de desempenho, e aperte JOGAR.",
-      "Elige tu nombre en línea, tu servidor y un perfil de rendimiento, y pulsa JUGAR.",
-      "Choisissez votre nom en ligne, votre serveur et un profil de performances, puis appuyez sur JOUER.",
-      "Wähl deinen Online-Namen, deinen Server und ein Leistungsprofil und drück SPIELEN.",
-      "Scegli il tuo nome online, il server e un profilo prestazioni, poi premi GIOCA."],
+      "Abra pelo atalho ReStreet na área de trabalho e aperte JOGAR. PC mais fraco? Em Gráficos, use resolução interna 1x.",
+      "Ábrelo desde el acceso directo ReStreet del escritorio y pulsa JUGAR. ¿PC menos potente? En Gráficos, usa resolución interna 1x.",
+      "Ouvrez-le avec le raccourci ReStreet du bureau et appuyez sur JOUER. PC moins puissant ? Dans Graphismes, utilisez la résolution interne 1x.",
+      "Öffne ihn über die ReStreet-Verknüpfung auf dem Desktop und drück SPIELEN. Schwächerer PC? Nutze unter Grafik die interne Auflösung 1x.",
+      "Aprilo dal collegamento ReStreet sul desktop e premi GIOCA. PC meno potente? In Grafica usa la risoluzione interna 1x."],
+    "gd.t": ["Guia passo a passo (PDF)", "Guía paso a paso (PDF)", "Guide pas à pas (PDF)", "Schritt-für-Schritt-Anleitung (PDF)", "Guida passo passo (PDF)"],
+    "gd.d": [
+      "Ilustrado e para todos: instalar, atualizar, opções do launcher, amigos e resolver problemas.",
+      "Ilustrada y para todos: instalar, actualizar, opciones del launcher, amigos y resolver problemas.",
+      "Illustré et pour tous : installer, mettre à jour, réglages du launcher, amis et résolution des problèmes (en anglais, portugais ou espagnol).",
+      "Bebildert und für alle: installieren, aktualisieren, Launcher-Einstellungen, Freunde und Problemlösung (auf Englisch, Portugiesisch oder Spanisch).",
+      "Illustrata e per tutti: installare, aggiornare, impostazioni del launcher, amici e risoluzione dei problemi (in inglese, portoghese o spagnolo)."],
     "i4.t": ["Fique atualizado", "Mantente al día", "Restez à jour", "Bleib aktuell", "Resta aggiornato"],
     "i4.d": [
       "Quando sai uma versão nova, o launcher mostra Atualizar. Clique: seu nome, servidor, configurações e progresso no World Tour são mantidos.",
