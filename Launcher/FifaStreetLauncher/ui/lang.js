@@ -172,9 +172,12 @@
     'Fullscreen': ['Tela cheia', 'Pantalla completa', 'Plein écran', 'Vollbild', 'Schermo intero'],
     'Windowed': ['Janela', 'Ventana', 'Fenêtré', 'Fenster', 'Finestra'],
 
-    'Quality and performance. Weaker PC? Pick the Performance profile.': ['Qualidade e desempenho. PC mais fraco? Escolha o perfil Desempenho.',
-      '¿Calidad o rendimiento? ¿PC menos potente? Elige el perfil Rendimiento.', 'Qualité et performances. PC moins puissant ? Choisissez le profil Performances.',
-      'Qualität und Leistung. Schwächerer PC? Wähle das Profil Leistung.', 'Qualità e prestazioni. PC meno potente? Scegli il profilo Prestazioni.'],
+    'Quality and performance. Weaker PC? Use 1x internal resolution and turn off ambient occlusion and MSAA.': [
+      'Qualidade e desempenho. PC mais fraco? Use resolução interna 1x e desligue a oclusão ambiente e o MSAA.',
+      'Calidad y rendimiento. ¿PC menos potente? Usa resolución interna 1x y desactiva la oclusión ambiental y el MSAA.',
+      "Qualité et performances. PC moins puissant ? Utilisez la résolution interne 1x et désactivez l'occlusion ambiante et le MSAA.",
+      'Qualität und Leistung. Schwächerer PC? Nutze interne Auflösung 1x und schalte Umgebungsverdeckung und MSAA aus.',
+      "Qualità e prestazioni. PC meno potente? Usa la risoluzione interna 1x e disattiva l'occlusione ambientale e l'MSAA."],
     'PROFILE': ['PERFIL', 'PERFIL', 'PROFIL', 'PROFIL', 'PROFILO'],
     'GRAPHICS API': ['API GRÁFICA', 'API GRÁFICA', 'API GRAPHIQUE', 'GRAFIK-API', 'API GRAFICA'],
     'POST-PROCESSING': ['PÓS-PROCESSAMENTO', 'POSPROCESADO', 'POST-TRAITEMENT', 'NACHBEARBEITUNG', 'POST-ELABORAZIONE'],
@@ -254,9 +257,6 @@
       "Le jeu s'est fermé avec une erreur lors de plusieurs sessions récentes. Mettez à jour le pilote graphique, ou ouvrez les journaux dans Avancé et envoyez-les-nous sur Discord.",
       'Das Spiel wurde in mehreren letzten Sitzungen mit einem Fehler beendet. Aktualisiere den Grafiktreiber oder öffne die Logs unter Erweitert und schick sie uns auf Discord.',
       'Il gioco si è chiuso con un errore in diverse sessioni recenti. Aggiorna il driver video, oppure apri i log in Avanzate e inviaceli su Discord.'],
-    'profile, a lower internal resolution, or the other graphics API.': [', uma resolução interna menor ou a outra API gráfica.',
-      ', una resolución interna más baja o la otra API gráfica.', ", une résolution interne plus basse ou l'autre API graphique.",
-      ', eine niedrigere interne Auflösung oder die andere Grafik-API.', ", una risoluzione interna più bassa o l'altra API grafica."],
 
     'Play without a controller. The keyboard works as an Xbox controller, so menus, matches and online all work; a controller still works too.': [
       'Jogue sem controle. O teclado funciona como um controle de Xbox, então menus, partidas e online funcionam; um controle também continua funcionando.',
@@ -378,9 +378,12 @@
     [/^(.+) opens a ReStreet menu in the game\. Pick another key\.$/, ['$1 abre um menu do ReStreet no jogo. Escolha outra tecla.',
       '$1 abre un menú de ReStreet en el juego. Elige otra tecla.', '$1 ouvre un menu ReStreet dans le jeu. Choisissez une autre touche.',
       '$1 öffnet ein ReStreet-Menü im Spiel. Wähle eine andere Taste.', '$1 apre un menu di ReStreet nel gioco. Scegli un altro tasto.']],
-    [/^Matches ran at (\S+) FPS, below your (\S+) Hz\. Try the$/, ['As partidas rodaram a $1 FPS, abaixo dos seus $2 Hz. Tente o perfil',
-      'Los partidos fueron a $1 FPS, por debajo de tus $2 Hz. Prueba el perfil', 'Les matchs tournaient à $1 FPS, sous vos $2 Hz. Essayez le profil',
-      'Spiele liefen mit $1 FPS, unter deinen $2 Hz. Probier das Profil', 'Le partite andavano a $1 FPS, sotto i tuoi $2 Hz. Prova il profilo']],
+    [/^Matches ran at (\S+) FPS, below your (\S+) Hz\. Try 1x internal resolution, ambient occlusion off, or the other graphics API\.$/, [
+      'As partidas rodaram a $1 FPS, abaixo dos seus $2 Hz. Tente resolução interna 1x, oclusão ambiente desligada ou a outra API gráfica.',
+      'Los partidos fueron a $1 FPS, por debajo de tus $2 Hz. Prueba resolución interna 1x, oclusión ambiental desactivada o la otra API gráfica.',
+      "Les matchs tournaient à $1 FPS, sous vos $2 Hz. Essayez la résolution interne 1x, l'occlusion ambiante désactivée ou l'autre API graphique.",
+      'Spiele liefen mit $1 FPS, unter deinen $2 Hz. Probier interne Auflösung 1x, Umgebungsverdeckung aus oder die andere Grafik-API.',
+      "Le partite andavano a $1 FPS, sotto i tuoi $2 Hz. Prova la risoluzione interna 1x, l'occlusione ambientale disattivata o l'altra API grafica."]],
     [/^Your (.+) game at (.+) is open, waiting for a player\.\.\.$/, ['Sua partida de $T1 em $2 está aberta, esperando um jogador...',
       'Tu partida de $T1 en $2 está abierta, esperando a un jugador...', 'Votre match $T1 à $2 est ouvert, en attente d\'un joueur...',
       'Dein $T1-Spiel in $2 ist offen und wartet auf einen Spieler...', 'La tua partita $T1 a $2 è aperta, in attesa di un giocatore...']],
