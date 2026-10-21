@@ -1,6 +1,6 @@
 # Validation and known limitations
 
-## ReStreet 2.0.3 (current)
+## ReStreet 2.0.6 (current)
 
 Tested by the developer on Windows 11 (AMD Radeon RX 9070 XT, Ryzen 5 7600), with two game copies on the live-like server path (about 180 ms ping):
 
@@ -13,11 +13,15 @@ Tested by the developer on Windows 11 (AMD Radeon RX 9070 XT, Ryzen 5 7600), wit
 | Launcher language and monitor reach the game | Passed |
 | Vulkan starts and signs in | Passed |
 | World Tour: leaving a match no longer closes the game | Passed (2.0.3) |
+| Online room to a full match between two games (synced, no disconnect) | Passed (2.0.6) |
+| Portuguese (PT-BR) menus and pop-ups, Direct3D 12 and Vulkan | Passed (2.0.6) |
+| World Tour progress from 2.0.0 / 2.0.1 brought back | Passed (2.0.6) |
+| Auto-update 2.0.5 to 2.0.6 keeps online name, server and key | Passed (2.0.6) |
 | Update from 1.5.7 / 2.0 / 2.0.1 / 2.0.2 keeps region, online name, settings and World Tour saves | Passed |
 
 **Not yet tested on 2.0:** two separate real PCs by the team, NVIDIA and Intel graphics, Linux with Wine / Proton.
 
-**Known issues:** player portraits and the phone messages in a new World Tour can look wrong; plus the limits listed in the [README](../README.md#known-limits-20).
+**Known issues:** the phone messages in a new World Tour can look wrong; plus the limits listed in the [README](../README.md#known-limits-20).
 
 ---
 

@@ -10,7 +10,13 @@
 
 [**Download**](https://github.com/samuelit0davila/fifa-street-pc-port/releases/latest) · [Changelog](CHANGELOG.md) · [Known issues](docs/STATUS.md) · [Report a bug](https://github.com/samuelit0davila/fifa-street-pc-port/issues) · [Build from source](docs/BUILDING.md)
 
+[![Website](https://img.shields.io/badge/Website-ReStreet-1f6feb?style=for-the-badge&logo=googlechrome&logoColor=white)](https://samuelit0davila.github.io/fifa-street-pc-port/)
+[![Discord](https://img.shields.io/badge/Discord-Join%20the%20server-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/CqjYMGKyy2)
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Z3B428N88S)
+
+[![Latest release](https://img.shields.io/github/v/release/samuelit0davila/fifa-street-pc-port?include_prereleases&label=latest&style=flat-square)](https://github.com/samuelit0davila/fifa-street-pc-port/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/samuelit0davila/fifa-street-pc-port/total?style=flat-square)](https://github.com/samuelit0davila/fifa-street-pc-port/releases)
+![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?style=flat-square)
 
 <img src="docs/images/restreet-2.0-banner.jpg" alt="ReStreet 2.0 — out now" width="900">
 
@@ -22,7 +28,7 @@ ReStreet is a Windows PC version of FIFA Street (2012), made by recompiling the 
 
 You need your own copy of the game: an **Xbox 360 ISO of FIFA Street (2012)**. The ISO and the game files are not included.
 
-**Current version: 2.0.3 Online Beta.**
+**Current version: 2.0.6 Online Beta.** Trailer and screenshots on the [website](https://samuelit0davila.github.io/fifa-street-pc-port/).
 
 ## What's new in 2.0
 
@@ -33,13 +39,15 @@ You need your own copy of the game: an **Xbox 360 ISO of FIFA Street (2012)**. T
 - **Brazilian Portuguese** translation by Eze_.
 - **Automatic updates:** the launcher finds new versions, checks them and installs them, keeping your name, server, settings and World Tour progress.
 
+**Latest fixes (2.0.4 – 2.0.6):** online sign-in, crashes entering or during a match, ultrawide screens, older CPUs without AVX2, World Tour saves (OneDrive, "corrupt save", progress from 2.0.0 / 2.0.1), My Squad faces, Portuguese (PT-BR) in game, and achievements on Windows user names with accents.
+
 Full history: [CHANGELOG.md](CHANGELOG.md).
 
 ## Download and install
 
 **New install**
 
-1. Download **ReStreet-2.0.3-Setup.exe** from the [latest release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/latest). Optionally check it against the `.sha256` file next to it.
+1. Download **ReStreet-2.0.6-Setup.exe** from the [latest release](https://github.com/samuelit0davila/fifa-street-pc-port/releases/latest). Optionally check it against the `.sha256` file next to it.
 2. Run it, choose your FIFA Street ISO, a folder, your online name and your server (Europe or South America).
 3. Open the launcher from the desktop shortcut and press **PLAY**.
 
@@ -72,23 +80,22 @@ On a weaker PC, choose the **Performance** profile in the launcher. Linux with W
 ## Known limits (2.0)
 
 - No mouse for skill moves yet (the launcher hides that option on 2.0).
-- Vulkan can have small stutters; use Direct3D 12 if you see them.
+- Vulkan can have small stutters, and on AMD cards it can crash in the driver; use Direct3D 12 there.
 - The game renders internally at 1280x720 and is scaled to your screen.
 - START + B also shows the game's own "leave this session?" question behind the launcher's; close it with A.
 - A launcher room does not pull a player out of another lobby; leave that lobby first.
 - Two copies of the game on the same PC can lose the connection after an invite (different PCs are fine).
-- Player portraits in World Tour (My Squad) look scrambled; being worked on.
 
 More details and what was tested: [docs/STATUS.md](docs/STATUS.md).
 
 ## Reporting a problem
 
-[Open an issue](https://github.com/samuelit0davila/fifa-street-pc-port/issues) or ask on Discord with:
+[Open an issue](https://github.com/samuelit0davila/fifa-street-pc-port/issues) or ask on [Discord](https://discord.gg/CqjYMGKyy2) with:
 
 - your ReStreet version, Windows version, CPU, GPU and RAM;
 - the graphics API (Direct3D 12 or Vulkan) and your launcher settings;
 - what happened and how to repeat it;
-- the logs: **Open logs** in the launcher (`Binaries\Logs\fifastreet.log` and `launcher_settings.txt`).
+- the logs: **Open logs** in the launcher (`Binaries\Logs\fifastreet.log` and `launcher_settings.txt`), plus `Binaries\crash_motivo.txt` if the game crashed.
 
 Please do not upload ISOs or game files.
 

@@ -1,5 +1,42 @@
 ﻿# ReStreet - FIFA Street 2012 Recompiled: changelog
 
+## v2.0.6 Online Beta
+
+Crash and save fixes. Offered automatically by the launcher.
+
+### Fixed
+- **Crash in the middle of a match** ("memory at 0x0000000100000000 could not be read"): when the game's own memory filled up, some requests got nothing. Every request is now covered, and borrowed memory is given back and reused.
+- **Crash ~2 seconds after start** on PCs whose sound device refuses to be opened twice.
+- **World Tour progress from 2.0.0 / 2.0.1** (saved under your online name) is loaded again.
+- **"Save file corrupt" after a crash while saving**: the empty save is skipped, and a deleted save is kept in `_apagados` (last 10) instead of being destroyed.
+- **Portuguese (PT-BR)** chosen in the launcher now really shows the game in Portuguese.
+- **Achievements** load again when the Windows user name has accents or non-Latin letters.
+- **Launcher rooms**: the "Loading game" page is now silent.
+
+## v2.0.5 Online Beta
+
+Crash and sign-in fixes. Offered automatically by the launcher.
+
+### Fixed
+- **Crash entering a match** (World Tour and others): the game ran out of its own GPU memory when loading players' heads.
+- **Online sign-in** works again when the server is slow.
+- **Crash ~30 s after start** when the save folder path has special characters.
+- **Ultrawide (21:9) screens**: no more crash loading a match.
+- **"Settings File damaged" / World Tour not saving** with OneDrive or a blocked Documents folder.
+- **My Squad player faces** are no longer noise.
+- **Launcher rooms** start the game on time, also with the launcher minimized.
+- **Older CPUs without AVX2** (before ~2015): the launcher now uses a build made for them.
+
+### Known
+- On AMD graphics cards, use Direct3D 12 (Vulkan can crash in the AMD driver).
+
+## v2.0.4 Online Beta
+
+Sign-in fix. Offered automatically by the launcher.
+
+### Fixed
+- **"SIGN IN FAILED" / `OSDK_SIGNIN_REQUIRED` on 2.0.3.** The 2.0.3 game was built without its online sign-in part. 2.0.4 puts it back.
+
 ## v2.0.3 Online Beta
 
 World Tour crash fixes. Offered automatically by the launcher.
