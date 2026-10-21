@@ -18,9 +18,9 @@
 [![Downloads](https://img.shields.io/github/downloads/samuelit0davila/fifa-street-pc-port/total?style=flat-square)](https://github.com/samuelit0davila/fifa-street-pc-port/releases)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?style=flat-square)
 
-<img src="docs/images/restreet-2.0-banner.jpg" alt="ReStreet 2.0 — out now" width="900">
-
 </div>
+
+https://github.com/user-attachments/assets/eb97ba0b-2c44-4b54-a93f-65220b0c3d40
 
 ## What is this
 
