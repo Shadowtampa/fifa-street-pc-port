@@ -25,6 +25,11 @@ Keep the output out of Git: it is game data (`private/` is ignored).
 
 ## DualSense button art
 
+| Before | After |
+|---|---|
+| ![Select Sides, Xbox](screenshots/select-sides-before.jpg) | ![Select Sides, DualSense](screenshots/select-sides-after.jpg) |
+| ![Controls loading screen, Xbox](screenshots/controls-loading-before.jpg) | ![Controls loading screen, DualSense](screenshots/controls-loading-after.jpg) |
+
 ```bash
 ReStreetAssetScan dualsense preview <game folder> <output> --controller ps5
 ReStreetAssetScan dualsense apply   <game folder> --controller ps5
