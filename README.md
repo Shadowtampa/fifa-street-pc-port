@@ -69,7 +69,7 @@ Estimates from testing, not guarantees.
 | Disk | about 12 GB free for a new install |
 | Game | Your own FIFA Street (2012) Xbox 360 ISO |
 
-On a weaker PC, choose the **Performance** profile in the launcher. Linux with Wine / Proton has not been tested on 2.0 yet.
+On a weaker PC, open **Graphics** in the launcher: use **1x** internal resolution and turn off ambient occlusion and MSAA. Linux with Wine / Proton has not been tested on 2.0 yet.
 
 ## Online play
 
