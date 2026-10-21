@@ -42,6 +42,8 @@ Get-ChildItem -LiteralPath (Join-Path $stage 'payload') -Filter '*.pdb' | Remove
 # Use the installed public SDK layout, with the current runtime and code generator.
 Copy-Item -LiteralPath (Join-Path $ReXGlueRoot 'out\install\win-amd64') -Destination (Join-Path $stage 'sdk') -Recurse
 $current = Join-Path $ReXGlueRoot 'out\win-amd64'
+# Multi-config builds (CI) put the outputs one level down, like backend-manifest.json expects.
+if (Test-Path -LiteralPath (Join-Path $current 'Release\rexglue.exe')) { $current = Join-Path $current 'Release' }
 $backendRuntime = Join-Path $ReXGlueRoot $backendInputs.backends.Vulkan.source
 foreach ($name in @('rexglue.exe','rexruntime.dll','rexgpu-xenos.dll','TracyClient.dll')) { Copy-Item -LiteralPath (Join-Path $current $name) -Destination (Join-Path $stage 'sdk\bin') -Force }
 Get-ChildItem -LiteralPath $current -Filter '*.lib' | Copy-Item -Destination (Join-Path $stage 'sdk\lib') -Force

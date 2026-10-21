@@ -139,7 +139,19 @@ jobs:
             Select-Object -First 1).Name
           if (-not $clangVersion) { throw 'Unable to determine the installed Clang resource version.' }
           $ninja = (Get-Command ninja.exe -ErrorAction Stop).Source
+          # Installer/backend-manifest.json pins the runtimes validated locally; this job ships the ones it just
+          # built, so it pins those (the installer checks them again on the player's PC).
+          $manifest = Get-Content -LiteralPath Installer/backend-manifest.json -Raw | ConvertFrom-Json
+          foreach ($name in @('D3D12', 'Vulkan')) {
+            $dir = Join-Path ReXGlue $manifest.backends.$name.source
+            $manifest.backends.$name.runtimeHash = (Get-FileHash (Join-Path $dir 'rexruntime.dll') -Algorithm SHA256).Hash.ToLower()
+            $manifest.backends.$name.gpuHash = (Get-FileHash (Join-Path $dir 'rexgpu-xenos.dll') -Algorithm SHA256).Hash.ToLower()
+          }
+          $manifest.version = 'ci-' + $env:GITHUB_SHA.Substring(0, 8)
+          $ciManifest = Join-Path $PWD 'dist/backend-manifest.json'
+          $manifest | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 $ciManifest
           ./Installer/BuildSetup.ps1 `
+            -BackendManifest $ciManifest `
             -Output "$PWD/dist/FifaStreet-Setup.exe" `
             -LLVMRoot 'C:\Program Files\LLVM' `
             -CMakeRoot 'C:\Program Files\CMake' `
